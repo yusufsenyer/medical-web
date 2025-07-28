@@ -1,0 +1,24 @@
+{
+  "name": "website-builder-rails",
+  "version": "1.0.0",
+  "description": "Full-stack website builder with Rails API and Next.js frontend",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && rails server",
+    "dev:frontend": "cd frontend && npm run dev -- --port 3001",
+    "install:all": "cd backend && bundle install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && rails server -e production",
+    "start:frontend": "cd frontend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yusufsenyer/website_builder_rails.git"
+  },
+  "author": "Yusuf Senyer",
+  "license": "MIT"
+}
