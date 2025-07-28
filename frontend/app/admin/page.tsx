@@ -43,19 +43,27 @@ import { generateOrderPDF, generateAllOrdersPDF } from '@/lib/pdf-utils'
 export default function AdminPage() {
   const router = useRouter()
   const { user, logout, isAuthenticated } = useAuth()
-  const { orders, analytics, users, updateOrderStatus, loadOrders, loadAnalytics, loadUsers, updateUserRole } = useStore()
+  const { orders, analytics, users, updateOrderStatus, loadAllOrders, loadAnalytics, loadAllUsers, updateUserRole } = useStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [orderNotes, setOrderNotes] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [refreshInterval, setRefreshInterval] = useState(30) // seconds
   const [lastRefresh, setLastRefresh] = useState(new Date())
 
+  // Mount effect
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Admin access control
   useEffect(() => {
+    if (!mounted) return
+
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
@@ -65,36 +73,40 @@ export default function AdminPage() {
       router.push('/dashboard') // Redirect customers to their dashboard
       return
     }
-  }, [user, isAuthenticated, router])
+  }, [user, isAuthenticated, router, mounted])
 
   // Load orders and analytics on component mount
   useEffect(() => {
+    if (!mounted) return
+
     const loadData = async () => {
       if (user?.role === 'admin') {
         try {
-          await Promise.all([loadOrders(), loadAnalytics(), loadUsers()])
+          await Promise.all([loadAllOrders(), loadAnalytics(), loadAllUsers()])
         } catch (error) {
           console.error('Error loading admin data:', error)
         } finally {
           setIsLoading(false)
         }
+      } else {
+        setIsLoading(false)
       }
     }
 
     loadData()
-  }, [user, loadOrders, loadAnalytics])
+  }, [user, loadAllOrders, loadAnalytics, mounted])
 
   // Auto-refresh functionality
   const refreshData = useCallback(async () => {
     if (user?.role === 'admin') {
       try {
-        await Promise.all([loadOrders(), loadAnalytics(), loadUsers()])
+        await Promise.all([loadAllOrders(), loadAnalytics(), loadAllUsers()])
         setLastRefresh(new Date())
       } catch (error) {
         console.error('Error refreshing data:', error)
       }
     }
-  }, [user, loadOrders, loadAnalytics, loadUsers])
+  }, [user, loadAllOrders, loadAnalytics, loadAllUsers])
 
   useEffect(() => {
     if (!autoRefresh || !user?.role === 'admin') return
@@ -233,7 +245,7 @@ export default function AdminPage() {
 
 
 
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = (orders || []).filter(order => {
     const customerName = order.customerName || `${order.customer_name || ''} ${order.customer_surname || ''}`.trim()
     const customerEmail = order.customerEmail || order.customer_email || ''
     const websiteType = order.websiteType || order.website_type || ''
@@ -250,7 +262,7 @@ export default function AdminPage() {
   })
 
   // Show loading state
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
