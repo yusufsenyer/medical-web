@@ -243,8 +243,11 @@ export const useStore = create<StoreState>((set, get) => ({
       console.log('Store: Response status:', response.status)
 
       if (response.ok) {
-        const orders = await response.json()
-        console.log('Store: All orders from Rails:', orders)
+        const apiResponse = await response.json()
+        console.log('Store: API Response from Rails:', apiResponse)
+
+        const orders = apiResponse.data || []
+        console.log('Store: Orders array:', orders)
         console.log('Store: Orders count:', orders.length)
 
         // Kullanıcının siparişlerini filtrele (email'e göre)
@@ -255,8 +258,8 @@ export const useStore = create<StoreState>((set, get) => ({
         console.log('Store: User email for filtering:', userEmail)
 
         const userOrders = userEmail ? orders.filter(order => {
-          console.log('Store: Checking order:', order.customer_email, 'vs', userEmail)
-          return order.customer_email === userEmail
+          console.log('Store: Checking order:', order.email, 'vs', userEmail)
+          return order.email === userEmail
         }) : []
         console.log('Store: Filtered user orders:', userOrders)
         console.log('Store: User orders count:', userOrders.length)

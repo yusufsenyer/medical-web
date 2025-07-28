@@ -265,7 +265,7 @@ export default function CustomerDashboard() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h3 className="font-semibold text-lg">
-                            {order.website_name || `${order.customer_name} Web Sitesi`}
+                            {order.siteName || `${order.customerName} Web Sitesi`}
                           </h3>
                           <Badge className={getStatusColor(order.status)}>
                             <div className="flex items-center space-x-1">
@@ -274,19 +274,19 @@ export default function CustomerDashboard() {
                             </div>
                           </Badge>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center space-x-2">
                             <Globe className="h-4 w-4" />
-                            <span>{order.website_type}</span>
+                            <span>{order.websiteType}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4" />
-                            <span>{new Date(order.created_at || Date.now()).toLocaleDateString('tr-TR')}</span>
+                            <span>{new Date(order.createdAt || Date.now()).toLocaleDateString('tr-TR')}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-foreground">
-                              ₺{order.total_price?.toLocaleString('tr-TR')}
+                              ₺{order.totalPrice?.toLocaleString('tr-TR')}
                             </span>
                           </div>
                         </div>
