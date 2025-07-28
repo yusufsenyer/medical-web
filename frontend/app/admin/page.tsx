@@ -781,11 +781,11 @@ Teslimat:
                   <CardContent className="space-y-3">
                     <div>
                       <label className="text-sm font-medium text-gray-600">Ad Soyad</label>
-                      <p className="font-semibold">{selectedOrder.customer_name} {selectedOrder.customer_surname}</p>
+                      <p className="font-semibold">{selectedOrder.customerName || selectedOrder.customer_name || 'Belirtilmemiş'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">E-mail</label>
-                      <p>{selectedOrder.customer_email}</p>
+                      <p>{selectedOrder.email || selectedOrder.customer_email || 'Belirtilmemiş'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">Meslek</label>
@@ -962,15 +962,8 @@ Teslimat:
                   <div className="space-y-4">
                     <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
                       <h4 className="font-semibold text-blue-900 mb-2">📋 Kişisel ve Mesleki Bilgiler</h4>
-                      <div className="mb-2 text-xs text-gray-600 bg-gray-100 p-2 rounded">
-                        <strong>DEBUG:</strong><br/>
-                        special_requests: "{selectedOrder.special_requests}"<br/>
-                        knowledge_text: "{selectedOrder.knowledge_text}"<br/>
-                        notes: "{selectedOrder.notes}"<br/>
-                        Order ID: {selectedOrder.id}
-                      </div>
                       <p className="text-blue-800 whitespace-pre-wrap leading-relaxed">
-                        {selectedOrder.special_requests || selectedOrder.knowledge_text || selectedOrder.notes || 'Kullanıcı bu alanı doldurmamış.'}
+                        {selectedOrder.specialRequests || selectedOrder.special_requests || selectedOrder.knowledge_text || selectedOrder.notes || 'Kullanıcı bu alanı doldurmamış.'}
                       </p>
                     </div>
 

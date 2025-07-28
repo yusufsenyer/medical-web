@@ -52,7 +52,7 @@ class Api::V1::OrdersController < ApplicationController
       :customerName, :customer_name, :customer_email, :customer_phone, :website_name, :website_type,
       :email, :phone, :websiteType, :siteName,
       :description, :totalPrice, :total_price, :basePrice, :base_price, :profession, :targetAudience, :target_audience,
-      :purpose, :colorPalette, :color_palette, :specialRequests, :special_requests, :deliveryDays, :delivery_days,
+      :purpose, :colorPalette, :color_palette, :specialRequests, :special_requests, :knowledge_text, :notes, :deliveryDays, :delivery_days,
       features: [], pages: [], selectedFeatures: [], selected_features: [], selectedPages: [], selected_pages: [],
       designPreferences: {}
     )
@@ -73,7 +73,7 @@ class Api::V1::OrdersController < ApplicationController
       selectedFeatures: order_params[:selectedFeatures] || order_params[:selected_features] || order_params[:features] || [],
       basePrice: order_params[:basePrice] || order_params[:base_price] || order_params[:totalPrice] || order_params[:total_price] || 1000,
       totalPrice: order_params[:totalPrice] || order_params[:total_price] || 1000,
-      specialRequests: order_params[:specialRequests] || order_params[:special_requests] || "",
+      specialRequests: order_params[:specialRequests] || order_params[:special_requests] || order_params[:knowledge_text] || order_params[:notes] || "",
       deliveryDays: order_params[:deliveryDays] || order_params[:delivery_days] || 7,
       status: "pending",
       createdAt: Time.current.iso8601,
