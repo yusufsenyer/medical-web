@@ -128,7 +128,54 @@ export default function AdminPage() {
   }
 
   const handleDownloadPDF = (order: any) => {
-    generateOrderPDF(order)
+    // Create simple text content for download
+    const pdfContent = `
+SIPARIŞ DETAYLARI
+================
+
+Müşteri Bilgileri:
+- Ad Soyad: ${order.customerName || 'Belirtilmemiş'}
+- E-posta: ${order.email || 'Belirtilmemiş'}
+- Telefon: ${order.phone || 'Belirtilmemiş'}
+- Meslek: ${order.profession || 'Belirtilmemiş'}
+
+Proje Bilgileri:
+- Site Adı: ${order.siteName || 'Belirtilmemiş'}
+- Site Türü: ${order.websiteType || 'Belirtilmemiş'}
+- Hedef Kitle: ${order.targetAudience || 'Belirtilmemiş'}
+- Amaç: ${order.purpose || 'Belirtilmemiş'}
+- Renk Paleti: ${order.colorPalette || 'Belirtilmemiş'}
+
+Seçilen Sayfalar:
+${order.selectedPages ? order.selectedPages.map((page: string) => `- ${page}`).join('\n') : 'Belirtilmemiş'}
+
+Seçilen Özellikler:
+${order.selectedFeatures ? order.selectedFeatures.map((feature: any) => `- ${typeof feature === 'string' ? feature : feature.name || feature.id}: ${feature.price || 0}₺`).join('\n') : 'Belirtilmemiş'}
+
+Fiyat Bilgileri:
+- Temel Fiyat: ${order.basePrice || order.totalPrice || 0}₺
+- Toplam Fiyat: ${order.totalPrice || 0}₺
+
+Özel İstekler:
+${order.specialRequests || 'Özel istek belirtilmemiş'}
+
+Teslimat:
+- Teslimat Süresi: ${order.deliveryDays || 'Belirtilmemiş'} gün
+- Durum: ${order.status || 'Belirtilmemiş'}
+- Sipariş Tarihi: ${new Date(order.createdAt).toLocaleDateString('tr-TR')}
+- Güncelleme Tarihi: ${new Date(order.updatedAt || order.createdAt).toLocaleDateString('tr-TR')}
+    `
+
+    // Create and download file
+    const blob = new Blob([pdfContent], { type: 'text/plain;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `siparis-${order.id}-${(order.customerName || 'unknown').replace(/\s+/g, '-')}.txt`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 
   const handleDownloadAllPDF = () => {
@@ -254,7 +301,7 @@ export default function AdminPage() {
       websiteType.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.id || '').toLowerCase().includes(searchTerm.toLowerCase())
+      (String(order.id) || '').toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus
 

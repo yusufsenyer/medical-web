@@ -317,7 +317,7 @@ export function generateOrderPDF(order: Order) {
 
       <div class="total-section">
         <h3 style="margin-top: 0; color: white;">Toplam Tutar</h3>
-        <div class="total-amount">₺${order.total_price.toLocaleString('tr-TR')}</div>
+        <div class="total-amount">₺${(order.total_price || order.totalPrice || 0).toLocaleString('tr-TR')}</div>
       </div>
 
       ${order.notes ? `

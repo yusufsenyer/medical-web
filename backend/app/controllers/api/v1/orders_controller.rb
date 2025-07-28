@@ -1,82 +1,10 @@
 class Api::V1::OrdersController < ApplicationController
+  # Class variable to store orders in memory (in a real app, use database)
+  @@created_orders = []
   def index
-    # Simulate getting all orders with detailed information
-    orders = [
-      {
-        id: 1,
-        customerName: "John Doe",
-        email: "john@example.com",
-        phone: "+90 555 123 4567",
-        profession: "İş İnsanı",
-        websiteType: "E-commerce",
-        siteName: "John's Store",
-        targetAudience: "Online alışveriş yapanlar",
-        purpose: "Ürünlerimi online satmak istiyorum",
-        colorPalette: "blue",
-        selectedPages: ["home", "products", "about", "contact"],
-        selectedFeatures: [
-          {"id": "responsive-design", "name": "Responsive Tasarım", "price": 0},
-          {"id": "seo-optimization", "name": "SEO Optimizasyonu", "price": 500},
-          {"id": "contact-form", "name": "İletişim Formu", "price": 200}
-        ],
-        basePrice: 1500,
-        totalPrice: 2200,
-        specialRequests: "Modern ve kullanıcı dostu bir tasarım istiyorum. Ürün kategorileri net bir şekilde ayrılsın.",
-        deliveryDays: 14,
-        status: "completed",
-        createdAt: "2025-01-15T10:30:00Z",
-        updatedAt: "2025-01-20T16:20:00Z"
-      },
-      {
-        id: 2,
-        customerName: "Jane Smith",
-        email: "jane@example.com",
-        phone: "+90 555 987 6543",
-        profession: "Fotoğrafçı",
-        websiteType: "Portfolio",
-        siteName: "Jane Photography",
-        targetAudience: "Düğün çiftleri ve aileler",
-        purpose: "Fotoğraf portföyümü sergilemek ve müşteri bulmak",
-        colorPalette: "elegant",
-        selectedPages: ["home", "portfolio", "about", "contact"],
-        selectedFeatures: [
-          {"id": "responsive-design", "name": "Responsive Tasarım", "price": 0},
-          {"id": "gallery", "name": "Fotoğraf Galerisi", "price": 300}
-        ],
-        basePrice: 800,
-        totalPrice: 1100,
-        specialRequests: "Fotoğraflarım ön planda olsun. Şık ve minimal bir tasarım tercih ediyorum.",
-        deliveryDays: 7,
-        status: "in-progress",
-        createdAt: "2025-01-20T14:15:00Z",
-        updatedAt: "2025-01-25T09:30:00Z"
-      },
-      {
-        id: 3,
-        customerName: "Mike Johnson",
-        email: "mike@example.com",
-        phone: "+90 555 456 7890",
-        profession: "Avukat",
-        websiteType: "Business",
-        siteName: "Johnson Law Firm",
-        targetAudience: "Hukuki danışmanlık arayanlar",
-        purpose: "Hukuk büromu tanıtmak ve müvekkil bulmak",
-        colorPalette: "professional",
-        selectedPages: ["home", "services", "about", "contact"],
-        selectedFeatures: [
-          {"id": "responsive-design", "name": "Responsive Tasarım", "price": 0},
-          {"id": "seo-optimization", "name": "SEO Optimizasyonu", "price": 500},
-          {"id": "analytics", "name": "Google Analytics", "price": 100}
-        ],
-        basePrice: 1200,
-        totalPrice: 1800,
-        specialRequests: "Güvenilir ve profesyonel görünüm önemli. Hizmetlerim net bir şekilde açıklansın.",
-        deliveryDays: 10,
-        status: "pending",
-        createdAt: "2025-01-25T09:45:00Z",
-        updatedAt: "2025-01-25T09:45:00Z"
-      }
-    ]
+    # Get all created orders from memory (in a real app, this would be from database)
+    @@created_orders ||= []
+    orders = @@created_orders
 
     render json: {
       success: true,
@@ -121,29 +49,42 @@ class Api::V1::OrdersController < ApplicationController
 
   def create
     order_params = params.require(:order).permit(
-      :customerName, :email, :phone, :websiteType, :siteName, 
-      :description, :totalPrice, features: [], pages: [], 
+      :customerName, :customer_name, :customer_email, :customer_phone, :website_name, :website_type,
+      :email, :phone, :websiteType, :siteName,
+      :description, :totalPrice, :total_price, :basePrice, :base_price, :profession, :targetAudience, :target_audience,
+      :purpose, :colorPalette, :color_palette, :specialRequests, :special_requests, :deliveryDays, :delivery_days,
+      features: [], pages: [], selectedFeatures: [], selected_features: [], selectedPages: [], selected_pages: [],
       designPreferences: {}
     )
-    
-    # Simulate order creation
+
+    # Create new order and store in memory
     new_order = {
       id: rand(1000..9999),
-      customerName: order_params[:customerName],
-      email: order_params[:email],
-      phone: order_params[:phone],
-      websiteType: order_params[:websiteType],
-      siteName: order_params[:siteName],
-      description: order_params[:description],
+      customerName: order_params[:customerName] || order_params[:customer_name],
+      email: order_params[:email] || order_params[:customer_email],
+      phone: order_params[:phone] || order_params[:customer_phone] || "",
+      profession: order_params[:profession] || "",
+      websiteType: order_params[:websiteType] || order_params[:website_type],
+      siteName: order_params[:siteName] || order_params[:website_name] || "",
+      targetAudience: order_params[:targetAudience] || order_params[:target_audience] || "",
+      purpose: order_params[:purpose] || "",
+      colorPalette: order_params[:colorPalette] || order_params[:color_palette] || "",
+      selectedPages: order_params[:selectedPages] || order_params[:selected_pages] || order_params[:pages] || [],
+      selectedFeatures: order_params[:selectedFeatures] || order_params[:selected_features] || order_params[:features] || [],
+      basePrice: order_params[:basePrice] || order_params[:base_price] || order_params[:totalPrice] || order_params[:total_price] || 1000,
+      totalPrice: order_params[:totalPrice] || order_params[:total_price] || 1000,
+      specialRequests: order_params[:specialRequests] || order_params[:special_requests] || "",
+      deliveryDays: order_params[:deliveryDays] || order_params[:delivery_days] || 7,
       status: "pending",
-      totalPrice: order_params[:totalPrice] || 1000,
       createdAt: Time.current.iso8601,
       updatedAt: Time.current.iso8601,
-      features: order_params[:features] || [],
-      pages: order_params[:pages] || [],
       designPreferences: order_params[:designPreferences] || {}
     }
-    
+
+    # Store in class variable (in real app, save to database)
+    @@created_orders ||= []
+    @@created_orders << new_order
+
     render json: {
       success: true,
       message: 'Order created successfully',
