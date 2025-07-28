@@ -92,6 +92,8 @@ interface StoreState {
   loadAnalytics: () => Promise<any>
   loadUserOrders: () => Promise<boolean>
   loadUsers: () => Promise<boolean>
+  loadAllUsers: () => Promise<boolean>
+  loadAllOrders: () => Promise<boolean>
   updateUserRole: (userId: string, role: string) => Promise<boolean>
 
   // Auth actions
@@ -663,6 +665,63 @@ export const useStore = create<StoreState>((set, get) => ({
           isLoading: false
         }
       }))
+    }
+  },
+
+  // Admin functions
+  loadAllOrders: async () => {
+    try {
+      console.log('Store: Loading all orders for admin')
+      const response = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const apiResponse = await response.json()
+        console.log('Store: All orders loaded:', apiResponse)
+
+        const orders = apiResponse.data || []
+        set((state) => ({ orders }))
+        return true
+      } else {
+        console.error('Store: Failed to load all orders')
+        return false
+      }
+    } catch (error) {
+      console.error('Store: Error loading all orders:', error)
+      return false
+    }
+  },
+
+  loadAllUsers: async () => {
+    try {
+      console.log('Store: Loading all users for admin')
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const apiResponse = await response.json()
+        console.log('Store: All users loaded:', apiResponse)
+
+        const users = apiResponse.data || []
+        set((state) => ({ users }))
+        return true
+      } else {
+        console.error('Store: Failed to load all users')
+        return false
+      }
+    } catch (error) {
+      console.error('Store: Error loading all users:', error)
+      return false
     }
   }
 }))

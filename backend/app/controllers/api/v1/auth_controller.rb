@@ -40,21 +40,34 @@ class Api::V1::AuthController < ApplicationController
 
   def login
     user_params = params.require(:user).permit(:email, :password)
-    
+
     # Simulate user authentication (replace with actual authentication later)
     if user_params[:email].present? && user_params[:password].present?
-      user_data = {
-        id: rand(1000..9999),
-        firstName: 'Test',
-        lastName: 'User',
-        email: user_params[:email],
-        fullName: 'Test User',
-        createdAt: Time.current.iso8601,
-        role: 'user'
-      }
-      
+      # Check if admin credentials
+      if user_params[:email] == 'admin123@gmail.com' && user_params[:password] == 'admin123'
+        user_data = {
+          id: 1,
+          firstName: 'Admin',
+          lastName: 'User',
+          email: user_params[:email],
+          fullName: 'Admin User',
+          createdAt: Time.current.iso8601,
+          role: 'admin'
+        }
+      else
+        user_data = {
+          id: rand(1000..9999),
+          firstName: 'Test',
+          lastName: 'User',
+          email: user_params[:email],
+          fullName: 'Test User',
+          createdAt: Time.current.iso8601,
+          role: 'user'
+        }
+      end
+
       token = "fake_jwt_token_#{rand(100000..999999)}"
-      
+
       render json: {
         success: true,
         message: 'Login successful',

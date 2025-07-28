@@ -1,39 +1,83 @@
 class Api::V1::OrdersController < ApplicationController
   def index
-    # Simulate getting all orders
+    # Simulate getting all orders with detailed information
     orders = [
       {
         id: 1,
         customerName: "John Doe",
         email: "john@example.com",
+        phone: "+90 555 123 4567",
+        profession: "İş İnsanı",
         websiteType: "E-commerce",
+        siteName: "John's Store",
+        targetAudience: "Online alışveriş yapanlar",
+        purpose: "Ürünlerimi online satmak istiyorum",
+        colorPalette: "blue",
+        selectedPages: ["home", "products", "about", "contact"],
+        selectedFeatures: [
+          {"id": "responsive-design", "name": "Responsive Tasarım", "price": 0},
+          {"id": "seo-optimization", "name": "SEO Optimizasyonu", "price": 500},
+          {"id": "contact-form", "name": "İletişim Formu", "price": 200}
+        ],
+        basePrice: 1500,
+        totalPrice: 2200,
+        specialRequests: "Modern ve kullanıcı dostu bir tasarım istiyorum. Ürün kategorileri net bir şekilde ayrılsın.",
+        deliveryDays: 14,
         status: "completed",
-        totalPrice: 1500,
         createdAt: "2025-01-15T10:30:00Z",
-        features: ["responsive-design", "seo-optimization", "contact-form"]
+        updatedAt: "2025-01-20T16:20:00Z"
       },
       {
         id: 2,
         customerName: "Jane Smith",
         email: "jane@example.com",
+        phone: "+90 555 987 6543",
+        profession: "Fotoğrafçı",
         websiteType: "Portfolio",
+        siteName: "Jane Photography",
+        targetAudience: "Düğün çiftleri ve aileler",
+        purpose: "Fotoğraf portföyümü sergilemek ve müşteri bulmak",
+        colorPalette: "elegant",
+        selectedPages: ["home", "portfolio", "about", "contact"],
+        selectedFeatures: [
+          {"id": "responsive-design", "name": "Responsive Tasarım", "price": 0},
+          {"id": "gallery", "name": "Fotoğraf Galerisi", "price": 300}
+        ],
+        basePrice: 800,
+        totalPrice: 1100,
+        specialRequests: "Fotoğraflarım ön planda olsun. Şık ve minimal bir tasarım tercih ediyorum.",
+        deliveryDays: 7,
         status: "in-progress",
-        totalPrice: 800,
         createdAt: "2025-01-20T14:15:00Z",
-        features: ["responsive-design", "gallery"]
+        updatedAt: "2025-01-25T09:30:00Z"
       },
       {
         id: 3,
         customerName: "Mike Johnson",
         email: "mike@example.com",
+        phone: "+90 555 456 7890",
+        profession: "Avukat",
         websiteType: "Business",
+        siteName: "Johnson Law Firm",
+        targetAudience: "Hukuki danışmanlık arayanlar",
+        purpose: "Hukuk büromu tanıtmak ve müvekkil bulmak",
+        colorPalette: "professional",
+        selectedPages: ["home", "services", "about", "contact"],
+        selectedFeatures: [
+          {"id": "responsive-design", "name": "Responsive Tasarım", "price": 0},
+          {"id": "seo-optimization", "name": "SEO Optimizasyonu", "price": 500},
+          {"id": "analytics", "name": "Google Analytics", "price": 100}
+        ],
+        basePrice: 1200,
+        totalPrice: 1800,
+        specialRequests: "Güvenilir ve profesyonel görünüm önemli. Hizmetlerim net bir şekilde açıklansın.",
+        deliveryDays: 10,
         status: "pending",
-        totalPrice: 1200,
         createdAt: "2025-01-25T09:45:00Z",
-        features: ["responsive-design", "seo-optimization", "analytics"]
+        updatedAt: "2025-01-25T09:45:00Z"
       }
     ]
-    
+
     render json: {
       success: true,
       data: orders,
