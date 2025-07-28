@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useStore } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 
 export function useAuth() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const {
     auth,
     setUser,
@@ -17,10 +18,16 @@ export function useAuth() {
     signUp: storeSignUp
   } = useStore()
 
+  // Mount effect
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Check authentication on mount
   useEffect(() => {
+    if (!mounted) return
     checkAuth()
-  }, [checkAuth])
+  }, [checkAuth, mounted])
 
   const signUp = async (userData: {
     firstName: string
@@ -158,11 +165,11 @@ export function useAuth() {
 
   return {
     // State
-    user: auth.user,
-    isAuthenticated: auth.isAuthenticated,
-    isLoading: auth.isLoading,
-    token: auth.token,
-    
+    user: mounted ? auth.user : null,
+    isAuthenticated: mounted ? auth.isAuthenticated : false,
+    isLoading: !mounted || auth.isLoading,
+    token: mounted ? auth.token : null,
+
     // Actions
     login,
     logout,
@@ -173,7 +180,7 @@ export function useAuth() {
     updateProfile,
     verifyEmail,
     checkAuth,
-    
+
     // Guards
     requireAuth,
     requireGuest

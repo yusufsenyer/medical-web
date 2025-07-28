@@ -33,24 +33,34 @@ export default function CustomerDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Mount effect
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Customer access control
   useEffect(() => {
+    if (!mounted) return
+
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
     }
-    
+
     if (user && user.role === 'admin') {
       router.push('/admin') // Redirect admin to admin panel
       return
     }
-  }, [user, isAuthenticated, router])
+  }, [user, isAuthenticated, router, mounted])
 
   // Load user's orders on component mount
   useEffect(() => {
+    if (!mounted) return
+
     const loadData = async () => {
-      if (user && user.role === 'customer') {
+      if (user && (user.role === 'customer' || user.role === 'user')) {
         console.log('Dashboard: Loading user orders for:', user.email)
         try {
           await loadUserOrders()
@@ -60,11 +70,13 @@ export default function CustomerDashboard() {
         } finally {
           setIsLoading(false)
         }
+      } else {
+        setIsLoading(false)
       }
     }
 
     loadData()
-  }, [user, loadUserOrders])
+  }, [user, loadUserOrders, mounted])
 
   // Debug userOrders değişikliklerini izle
   useEffect(() => {
@@ -74,6 +86,8 @@ export default function CustomerDashboard() {
 
   // Debug user data
   useEffect(() => {
+    if (!mounted) return
+
     const userData = localStorage.getItem('user-data')
     console.log('Dashboard: localStorage user-data:', userData)
     if (userData) {
@@ -81,7 +95,7 @@ export default function CustomerDashboard() {
       console.log('Dashboard: parsed user data:', parsed)
       console.log('Dashboard: user email:', parsed.email)
     }
-  }, [])
+  }, [mounted])
 
   const handleLogout = () => {
     logout()
@@ -119,7 +133,7 @@ export default function CustomerDashboard() {
   }
 
   // Show loading state
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />

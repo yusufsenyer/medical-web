@@ -617,6 +617,19 @@ export const useStore = create<StoreState>((set, get) => ({
     set((state) => ({ auth: { ...state.auth, isLoading: true } }))
 
     try {
+      // Check if we're in browser environment
+      if (typeof window === 'undefined') {
+        set((state) => ({
+          auth: {
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            isLoading: false
+          }
+        }))
+        return
+      }
+
       const token = localStorage.getItem('auth-token')
       const userData = localStorage.getItem('user-data')
 
@@ -641,6 +654,7 @@ export const useStore = create<StoreState>((set, get) => ({
         }))
       }
     } catch (error) {
+      console.error('checkAuth error:', error)
       set((state) => ({
         auth: {
           user: null,
