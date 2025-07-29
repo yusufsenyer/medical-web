@@ -248,12 +248,71 @@ export default function CustomerDashboard() {
           </Card>
         </div>
 
+        {/* Delivered Websites */}
+        {userOrders.filter(order => (order.status === 'delivered' || order.status === 'completed') && order.websiteUrl).length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Globe className="h-5 w-5 text-green-600" />
+                <span>Teslim Edilen Web Sitelerim</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {userOrders
+                  .filter(order => (order.status === 'delivered' || order.status === 'completed') && order.websiteUrl)
+                  .map((order) => (
+                    <motion.div
+                      key={order.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="border rounded-lg p-4 hover:shadow-md transition-all bg-gradient-to-br from-green-50 to-blue-50"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold text-lg">
+                            {order.siteName || `${order.customerName} Web Sitesi`}
+                          </h3>
+                          <Badge className="bg-green-100 text-green-800">
+                            <Globe className="h-3 w-3 mr-1" />
+                            Yayında
+                          </Badge>
+                        </div>
+
+                        <div className="text-sm text-muted-foreground">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <Calendar className="h-3 w-3" />
+                            <span>Teslim: {new Date(order.updatedAt || order.createdAt || Date.now()).toLocaleDateString('tr-TR')}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="capitalize">{order.websiteType === 'single-page' ? 'Tek Sayfa' : 'Çok Sayfa'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => window.open(order.websiteUrl, '_blank')}
+                            className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                            size="sm"
+                          >
+                            <Globe className="h-4 w-4 mr-1" />
+                            Web Sitemi Ziyaret Et
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Orders List */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Package className="h-5 w-5" />
-              <span>Siparişlerim</span>
+              <span>Tüm Siparişlerim</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -315,6 +374,19 @@ export default function CustomerDashboard() {
                       </div>
                       
                       <div className="flex items-center space-x-2">
+                        {/* Website URL Button - Show if delivered */}
+                        {(order.status === 'delivered' || order.status === 'completed') && order.websiteUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(order.websiteUrl, '_blank')}
+                            className="text-green-600 border-green-200 hover:bg-green-50"
+                          >
+                            <Globe className="h-4 w-4 mr-1" />
+                            Web Sitemi Gör
+                          </Button>
+                        )}
+
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button

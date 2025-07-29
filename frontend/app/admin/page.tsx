@@ -26,7 +26,9 @@ import {
   FileText,
   X,
   ArrowLeft,
-  Loader2
+  Loader2,
+  Settings,
+  ExternalLink
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -49,6 +51,9 @@ export default function AdminPage() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [orderNotes, setOrderNotes] = useState('')
+  const [websiteUrl, setWebsiteUrl] = useState('')
+  const [adminNotes, setAdminNotes] = useState('')
+  const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState(true)
@@ -123,8 +128,35 @@ export default function AdminPage() {
     router.push('/')
   }
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    updateOrderStatus(orderId, newStatus)
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/v1/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus,
+          websiteUrl: websiteUrl || undefined,
+          adminNotes: adminNotes || undefined,
+          estimatedDeliveryDate: estimatedDeliveryDate || undefined
+        })
+      })
+
+      if (response.ok) {
+        updateOrderStatus(orderId, newStatus)
+        // Reset form fields
+        setWebsiteUrl('')
+        setAdminNotes('')
+        setEstimatedDeliveryDate('')
+        // Refresh data
+        await refreshData()
+      } else {
+        console.error('Failed to update order status')
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error)
+    }
   }
 
   const handleDownloadPDF = (order: any) => {
@@ -493,7 +525,7 @@ Teslimat:
                     <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <h4 className="font-semibold">
-                          {order.website_name || `${getCustomerName(order)} Web Sitesi`}
+                          {order.siteName || order.website_name || `${getCustomerName(order)} Web Sitesi`}
                         </h4>
                         <p className="text-sm text-gray-600">
                           {getCustomerName(order)}
@@ -583,7 +615,7 @@ Teslimat:
                           <td className="p-4">
                             <div>
                               <p className="font-semibold">
-                                {order.website_name || `${getCustomerName(order)} Web Sitesi`}
+                                {order.siteName || order.website_name || `${getCustomerName(order)} Web Sitesi`}
                               </p>
                               <p className="text-sm text-gray-600">#{order.id}</p>
                             </div>
@@ -807,7 +839,7 @@ Teslimat:
                     <div>
                       <label className="text-sm font-medium text-gray-600">Website Adı</label>
                       <p className="font-semibold">
-                        {selectedOrder.websiteName || selectedOrder.website_name || `${getCustomerName(selectedOrder)} Web Sitesi`}
+                        {selectedOrder.siteName || selectedOrder.websiteName || selectedOrder.website_name || `${getCustomerName(selectedOrder)} Web Sitesi`}
                       </p>
                     </div>
                     <div>
@@ -1048,21 +1080,106 @@ Teslimat:
                 </CardContent>
               </Card>
 
-              {/* Notlar */}
+              {/* Website Teslimi ve Durum Yönetimi */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Admin Notları</CardTitle>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Settings className="h-5 w-5" />
+                    <span>Sipariş Yönetimi</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Textarea
-                    value={orderNotes}
-                    onChange={(e) => setOrderNotes(e.target.value)}
-                    placeholder="Sipariş hakkında notlarınızı buraya yazın..."
-                    className="min-h-[100px]"
-                  />
-                  <Button onClick={saveOrderNotes} className="w-full">
-                    Notları Kaydet
-                  </Button>
+                <CardContent className="space-y-4">
+                  {/* Mevcut Website URL */}
+                  {selectedOrder.websiteUrl && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <label className="text-sm font-medium text-green-800">Teslim Edilen Website</label>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <a
+                          href={selectedOrder.websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:text-green-800 underline"
+                        >
+                          {selectedOrder.websiteUrl}
+                        </a>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(selectedOrder.websiteUrl, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Website URL Girişi */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Website URL</label>
+                    <Input
+                      value={websiteUrl}
+                      onChange={(e) => setWebsiteUrl(e.target.value)}
+                      placeholder="https://example.com"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  {/* Admin Notları */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Admin Notları</label>
+                    <Textarea
+                      value={adminNotes}
+                      onChange={(e) => setAdminNotes(e.target.value)}
+                      placeholder="Sipariş hakkında notlarınızı buraya yazın..."
+                      className="mt-1 min-h-[80px]"
+                    />
+                  </div>
+
+                  {/* Tahmini Teslim Tarihi */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Tahmini Teslim Tarihi</label>
+                    <Input
+                      type="date"
+                      value={estimatedDeliveryDate}
+                      onChange={(e) => setEstimatedDeliveryDate(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  {/* Durum Güncelleme Butonları */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-600">Sipariş Durumu Güncelle</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleStatusChange(selectedOrder.id, 'in-progress')}
+                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                      >
+                        İşleme Al
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleStatusChange(selectedOrder.id, 'completed')}
+                        className="text-green-600 border-green-200 hover:bg-green-50"
+                      >
+                        Tamamla
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleStatusChange(selectedOrder.id, 'delivered')}
+                        className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                      >
+                        Teslim Et
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleStatusChange(selectedOrder.id, 'pending')}
+                        className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                      >
+                        Beklemede
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

@@ -50,67 +50,167 @@ export default function PricingPage() {
               {PRICING_PACKAGES.map((pkg, index) => (
                 <motion.div
                   key={pkg.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className={`relative bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 ${
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  whileHover={{
+                    y: -10,
+                    scale: pkg.popular ? 1.02 : 1.05,
+                    transition: { duration: 0.3, ease: "easeOut" }
+                  }}
+                  transition={{
+                    delay: index * 0.15,
+                    duration: 0.7,
+                    ease: "easeOut"
+                  }}
+                  className={`relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 ${
                     pkg.popular ? 'ring-2 ring-purple-500 scale-105 shadow-xl' : 'hover:shadow-xl'
                   }`}
                 >
                   {pkg.popular && (
-                    <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-2 text-sm font-semibold">
-                      🎯 En Popüler
-                    </Badge>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.15 + 0.3, duration: 0.5, type: "spring" }}
+                    >
+                      <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-2 text-sm font-semibold animate-pulse">
+                        🎯 En Popüler
+                      </Badge>
+                    </motion.div>
                   )}
 
                   <div className={`p-8 lg:p-10 h-full ${pkg.popular ? '' : 'flex flex-col'}`}>
                     {/* Package Header */}
-                    <div className="text-center mb-8">
-                      <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${pkg.color} shadow-lg mb-6`}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.15 + 0.2, duration: 0.6 }}
+                      className="text-center mb-8"
+                    >
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        whileInView={{ scale: 1, rotate: 0 }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{
+                          delay: index * 0.15 + 0.4,
+                          duration: 0.8,
+                          type: "spring",
+                          stiffness: 200
+                        }}
+                        className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${pkg.color} shadow-lg mb-6`}
+                      >
                         <div className="w-10 h-10 bg-white/20 rounded-xl"></div>
-                      </div>
+                      </motion.div>
 
-                      <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
+                      <motion.h3
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.15 + 0.5, duration: 0.5 }}
+                        className="text-2xl font-bold mb-2"
+                      >
+                        {pkg.name}
+                      </motion.h3>
 
-                      <div className="mb-6">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.15 + 0.6, duration: 0.6 }}
+                        className="mb-6"
+                      >
                         <div className="flex items-center justify-center space-x-2 mb-2">
-                          <span className="text-5xl font-bold">₺{pkg.price.toLocaleString()}</span>
+                          <motion.span
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.15 + 0.7, duration: 0.5 }}
+                            className="text-5xl font-bold"
+                          >
+                            ₺{pkg.price.toLocaleString()}
+                          </motion.span>
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.15 + 0.8, duration: 0.5 }}
+                          className="text-sm text-gray-500"
+                        >
                           <span className="line-through">₺{pkg.originalPrice.toLocaleString()}</span>
                           <span className="ml-2 text-green-600 font-semibold">
                             ₺{(pkg.originalPrice - pkg.price).toLocaleString()} tasarruf
                           </span>
-                        </div>
+                        </motion.div>
                         <div className="text-gray-600 mt-2">Tek seferlik ödeme</div>
-                      </div>
-                    </div>
+                      </motion.div>
+                    </motion.div>
 
                     {/* Features List */}
-                    <ul className={`space-y-4 mb-8 ${pkg.popular ? '' : 'flex-grow'}`}>
+                    <motion.ul
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: index * 0.15 + 0.9, duration: 0.6 }}
+                      className={`space-y-4 mb-8 ${pkg.popular ? '' : 'flex-grow'}`}
+                    >
                       {pkg.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start space-x-3">
-                          <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <motion.li
+                          key={idx}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                          transition={{
+                            delay: index * 0.15 + 1.0 + (idx * 0.1),
+                            duration: 0.4
+                          }}
+                          className="flex items-start space-x-3"
+                        >
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            whileInView={{ scale: 1 }}
+                            transition={{
+                              delay: index * 0.15 + 1.0 + (idx * 0.1) + 0.2,
+                              duration: 0.3,
+                              type: "spring"
+                            }}
+                          >
+                            <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                          </motion.div>
                           <span className="text-gray-700 leading-relaxed">{feature}</span>
-                        </li>
+                        </motion.li>
                       ))}
-                    </ul>
+                    </motion.ul>
 
                     {/* CTA Button */}
-                    <div className={pkg.popular ? '' : 'mt-auto'}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.15 + 1.5, duration: 0.6 }}
+                      className={pkg.popular ? '' : 'mt-auto'}
+                    >
                       <Link href="/order">
-                        <Button
-                          className={`w-full py-6 text-lg font-semibold rounded-xl ${
-                            pkg.popular
-                              ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 transform hover:scale-105'
-                              : `bg-gradient-to-r ${pkg.color} hover:opacity-90 transform hover:scale-105`
-                          } transition-all duration-200`}
+                        <motion.div
+                          whileHover={{
+                            scale: 1.05,
+                            transition: { duration: 0.2 }
+                          }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          Hemen Başla
-                          <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
+                          <Button
+                            className={`w-full py-6 text-lg font-semibold rounded-xl ${
+                              pkg.popular
+                                ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700'
+                                : `bg-gradient-to-r ${pkg.color} hover:opacity-90`
+                            } transition-all duration-300 shadow-lg hover:shadow-xl`}
+                          >
+                            Hemen Başla
+                            <motion.div
+                              initial={{ x: 0 }}
+                              whileHover={{ x: 5 }}
+                              transition={{ duration: 0.2 }}
+                              className="ml-2 inline-block"
+                            >
+                              <ArrowRight className="h-5 w-5" />
+                            </motion.div>
+                          </Button>
+                        </motion.div>
                       </Link>
-                    </div>
+                    </motion.div>
                   </div>
                 </motion.div>
               ))}
@@ -137,23 +237,56 @@ export default function PricingPage() {
               {ADDITIONAL_FEATURES.map((feature, index) => (
                 <motion.div
                   key={feature.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.6 }}
-                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  whileHover={{
+                    y: -8,
+                    scale: 1.05,
+                    transition: { duration: 0.3, ease: "easeOut" }
+                  }}
+                  transition={{
+                    delay: index * 0.1,
+                    duration: 0.6,
+                    ease: "easeOut"
+                  }}
+                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500"
                 >
-                  <div className="flex items-center justify-between mb-4">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 + 0.2, duration: 0.5 }}
+                    className="flex items-center justify-between mb-4"
+                  >
                     <div className="flex items-center space-x-2">
-                      <Plus className="h-5 w-5 text-blue-500" />
+                      <motion.div
+                        initial={{ scale: 0, rotate: -90 }}
+                        whileInView={{ scale: 1, rotate: 0 }}
+                        whileHover={{ scale: 1.2, rotate: 90 }}
+                        transition={{
+                          delay: index * 0.1 + 0.3,
+                          duration: 0.5,
+                          type: "spring"
+                        }}
+                      >
+                        <Plus className="h-5 w-5 text-blue-500" />
+                      </motion.div>
                       <span className="font-semibold text-gray-900">{feature.name}</span>
                     </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <span className="text-2xl font-bold text-green-600">
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 + 0.4, duration: 0.6 }}
+                    className="text-right"
+                  >
+                    <motion.span
+                      whileHover={{ scale: 1.1 }}
+                      className="text-2xl font-bold text-green-600"
+                    >
                       ₺{feature.price.toLocaleString()}
-                    </span>
-                  </div>
+                    </motion.span>
+                  </motion.div>
                 </motion.div>
               ))}
             </div>
