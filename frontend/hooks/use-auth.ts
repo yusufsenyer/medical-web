@@ -97,10 +97,53 @@ export function useAuth() {
     bio?: string
   }) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Update user in store
+      // Simulate API call to backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/v1/auth/update-profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          user: {
+            id: auth.user?.id,
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            email: profileData.email,
+            phone: profileData.phone,
+            company: profileData.company,
+            bio: profileData.bio
+          }
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+
+        // Update user in store
+        if (auth.user) {
+          const updatedUser = {
+            ...auth.user,
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            fullName: `${profileData.firstName} ${profileData.lastName}`,
+            email: profileData.email,
+            phone: profileData.phone,
+            company: profileData.company,
+            bio: profileData.bio,
+            updatedAt: new Date().toISOString()
+          }
+
+          setUser(updatedUser)
+          localStorage.setItem('user-data', JSON.stringify(updatedUser))
+        }
+
+        return true
+      } else {
+        throw new Error('Profile update failed')
+      }
+    } catch (error) {
+      // Fallback to local update if API fails
       if (auth.user) {
         const updatedUser = {
           ...auth.user,
@@ -108,16 +151,17 @@ export function useAuth() {
           lastName: profileData.lastName,
           fullName: `${profileData.firstName} ${profileData.lastName}`,
           email: profileData.email,
+          phone: profileData.phone,
+          company: profileData.company,
+          bio: profileData.bio,
           updatedAt: new Date().toISOString()
         }
-        
+
         setUser(updatedUser)
         localStorage.setItem('user-data', JSON.stringify(updatedUser))
       }
-      
+
       return true
-    } catch (error) {
-      throw error
     }
   }
 

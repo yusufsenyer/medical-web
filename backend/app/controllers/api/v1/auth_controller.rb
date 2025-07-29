@@ -70,15 +70,26 @@ class Api::V1::AuthController < ApplicationController
           role: 'admin'
         }
       else
-        user_data = {
-          id: rand(1000..9999),
-          firstName: 'Test',
-          lastName: 'User',
-          email: user_params[:email],
-          fullName: 'Test User',
-          createdAt: Time.current.iso8601,
-          role: 'user'
-        }
+        # Try to find existing user in users list
+        Api::V1::UsersController.class_variable_set(:@@registered_users,
+          Api::V1::UsersController.class_variable_get(:@@registered_users) || [])
+        users = Api::V1::UsersController.class_variable_get(:@@registered_users)
+        existing_user = users.find { |u| u[:email] == user_params[:email] }
+
+        if existing_user
+          user_data = existing_user.dup
+          user_data[:lastLogin] = Time.current.iso8601
+        else
+          user_data = {
+            id: rand(1000..9999),
+            firstName: 'Test',
+            lastName: 'User',
+            email: user_params[:email],
+            fullName: 'Test User',
+            createdAt: Time.current.iso8601,
+            role: 'user'
+          }
+        end
       end
 
       token = "fake_jwt_token_#{rand(100000..999999)}"
@@ -130,5 +141,54 @@ class Api::V1::AuthController < ApplicationController
       success: true,
       data: user_data
     }
+  end
+
+  def update_profile
+    user_params = params.require(:user).permit(:id, :firstName, :lastName, :email, :phone, :company, :bio)
+
+    begin
+      # Update user in users list
+      Api::V1::UsersController.class_variable_set(:@@registered_users,
+        Api::V1::UsersController.class_variable_get(:@@registered_users) || [])
+      users = Api::V1::UsersController.class_variable_get(:@@registered_users)
+
+      user_index = users.find_index { |u| u[:id] == user_params[:id].to_i }
+
+      if user_index
+        users[user_index].merge!({
+          firstName: user_params[:firstName],
+          lastName: user_params[:lastName],
+          fullName: "#{user_params[:firstName]} #{user_params[:lastName]}",
+          email: user_params[:email],
+          phone: user_params[:phone],
+          company: user_params[:company],
+          bio: user_params[:bio],
+          updatedAt: Time.current.iso8601
+        })
+
+        updated_user = users[user_index]
+
+        render json: {
+          success: true,
+          message: 'Profile updated successfully',
+          data: {
+            user: updated_user
+          }
+        }
+      else
+        render json: {
+          success: false,
+          message: 'User not found',
+          errors: ['User not found']
+        }, status: :not_found
+      end
+
+    rescue => e
+      render json: {
+        success: false,
+        message: 'Profile update failed',
+        errors: [e.message]
+      }, status: :unprocessable_entity
+    end
   end
 end

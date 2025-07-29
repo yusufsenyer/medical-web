@@ -46,7 +46,7 @@ export default function PricingPage() {
         {/* Pricing Packages */}
         <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto items-stretch">
               {PRICING_PACKAGES.map((pkg, index) => (
                 <motion.div
                   key={pkg.id}
@@ -63,15 +63,15 @@ export default function PricingPage() {
                     </Badge>
                   )}
 
-                  <div className="p-8 lg:p-10">
+                  <div className="p-8 lg:p-10 h-full flex flex-col">
                     {/* Package Header */}
                     <div className="text-center mb-8">
                       <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${pkg.color} shadow-lg mb-6`}>
                         <div className="w-10 h-10 bg-white/20 rounded-xl"></div>
                       </div>
-                      
+
                       <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
-                      
+
                       <div className="mb-6">
                         <div className="flex items-center justify-center space-x-2 mb-2">
                           <span className="text-5xl font-bold">₺{pkg.price.toLocaleString()}</span>
@@ -87,7 +87,7 @@ export default function PricingPage() {
                     </div>
 
                     {/* Features List */}
-                    <ul className="space-y-4 mb-8">
+                    <ul className="space-y-4 mb-8 flex-grow">
                       {pkg.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start space-x-3">
                           <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -97,18 +97,20 @@ export default function PricingPage() {
                     </ul>
 
                     {/* CTA Button */}
-                    <Link href="/order">
-                      <Button 
-                        className={`w-full py-6 text-lg font-semibold rounded-xl ${
-                          pkg.popular 
-                            ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 transform hover:scale-105' 
-                            : `bg-gradient-to-r ${pkg.color} hover:opacity-90 transform hover:scale-105`
-                        } transition-all duration-200`}
-                      >
-                        Hemen Başla
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    </Link>
+                    <div className="mt-auto">
+                      <Link href="/order">
+                        <Button
+                          className={`w-full py-6 text-lg font-semibold rounded-xl ${
+                            pkg.popular
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 transform hover:scale-105'
+                              : `bg-gradient-to-r ${pkg.color} hover:opacity-90 transform hover:scale-105`
+                          } transition-all duration-200`}
+                        >
+                          Hemen Başla
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               ))}
