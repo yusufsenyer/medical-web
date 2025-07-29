@@ -11,7 +11,11 @@ Rails.application.routes.draw do
       put 'auth/update-profile', to: 'auth#update_profile'
 
       # Orders routes
-      resources :orders, only: [:index, :show, :create, :update, :destroy]
+      resources :orders, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          put 'status', to: 'orders#update_status'
+        end
+      end
 
       # Users routes (admin only)
       resources :users, only: [:index, :show] do
