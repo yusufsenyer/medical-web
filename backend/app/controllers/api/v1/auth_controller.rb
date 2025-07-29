@@ -1,4 +1,16 @@
 class Api::V1::AuthController < ApplicationController
+  # Access to users list from UsersController
+  def self.add_user_to_list(user_data)
+    Api::V1::UsersController.class_variable_set(:@@registered_users,
+      Api::V1::UsersController.class_variable_get(:@@registered_users) || [])
+    users = Api::V1::UsersController.class_variable_get(:@@registered_users)
+
+    # Check if user already exists
+    existing_user = users.find { |u| u[:email] == user_data[:email] }
+    unless existing_user
+      users << user_data
+    end
+  end
   def register
     user_params = params.require(:user).permit(:firstName, :lastName, :email, :password)
     
@@ -15,7 +27,10 @@ class Api::V1::AuthController < ApplicationController
     
     # Simulate token generation
     token = "fake_jwt_token_#{rand(100000..999999)}"
-    
+
+    # Add user to users list
+    self.class.add_user_to_list(user_data)
+
     render json: {
       success: true,
       message: 'User registered successfully',
@@ -67,6 +82,14 @@ class Api::V1::AuthController < ApplicationController
       end
 
       token = "fake_jwt_token_#{rand(100000..999999)}"
+
+      # Add user to users list (if not admin)
+      unless user_data[:role] == 'admin'
+        # Update user data with last login
+        user_data[:lastLogin] = Time.current.iso8601
+        user_data[:isActive] = true
+        self.class.add_user_to_list(user_data)
+      end
 
       render json: {
         success: true,

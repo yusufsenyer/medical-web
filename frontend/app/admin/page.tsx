@@ -223,8 +223,8 @@ Teslimat:
     }
 
     // If no name available, use email or fallback
-    if (order.customerEmail || order.customer_email) {
-      const email = order.customerEmail || order.customer_email
+    if (order.email || order.customerEmail || order.customer_email) {
+      const email = order.email || order.customerEmail || order.customer_email
       return email.split('@')[0] // Use email username part
     }
 
@@ -294,7 +294,7 @@ Teslimat:
 
   const filteredOrders = (orders || []).filter(order => {
     const customerName = order.customerName || `${order.customer_name || ''} ${order.customer_surname || ''}`.trim()
-    const customerEmail = order.customerEmail || order.customer_email || ''
+    const customerEmail = order.email || order.customerEmail || order.customer_email || ''
     const websiteType = order.websiteType || order.website_type || ''
 
     const matchesSearch =
@@ -594,7 +594,7 @@ Teslimat:
                                 {getCustomerName(order)}
                               </p>
                               <p className="text-sm text-gray-600">
-                                {order.customerEmail || order.customer_email || 'E-posta yok'}
+                                {order.email || order.customerEmail || order.customer_email || 'E-posta yok'}
                               </p>
                             </div>
                           </td>

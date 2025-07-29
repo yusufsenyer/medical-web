@@ -1,42 +1,11 @@
 class Api::V1::UsersController < ApplicationController
+  # Class variable to store users in memory (in a real app, use database)
+  @@registered_users = []
   def index
-    # Simulate getting all users (admin only)
-    users = [
-      {
-        id: 1,
-        firstName: "John",
-        lastName: "Doe",
-        fullName: "John Doe",
-        email: "john@example.com",
-        role: "user",
-        isActive: true,
-        createdAt: "2025-01-10T08:30:00Z",
-        lastLogin: "2025-01-28T10:15:00Z"
-      },
-      {
-        id: 2,
-        firstName: "Jane",
-        lastName: "Smith",
-        fullName: "Jane Smith",
-        email: "jane@example.com",
-        role: "admin",
-        isActive: true,
-        createdAt: "2025-01-05T12:20:00Z",
-        lastLogin: "2025-01-28T09:45:00Z"
-      },
-      {
-        id: 3,
-        firstName: "Mike",
-        lastName: "Johnson",
-        fullName: "Mike Johnson",
-        email: "mike@example.com",
-        role: "user",
-        isActive: false,
-        createdAt: "2025-01-20T16:10:00Z",
-        lastLogin: "2025-01-25T14:30:00Z"
-      }
-    ]
-    
+    # Get all registered users from memory (in a real app, this would be from database)
+    @@registered_users ||= []
+    users = @@registered_users
+
     # Apply search filter if provided
     search = params[:search]
     if search.present?
@@ -45,15 +14,15 @@ class Api::V1::UsersController < ApplicationController
         user[:email].downcase.include?(search.downcase)
       end
     end
-    
+
     # Apply pagination
     page = (params[:page] || 1).to_i
     limit = (params[:limit] || 10).to_i
     start_index = (page - 1) * limit
     end_index = start_index + limit - 1
-    
+
     paginated_users = users[start_index..end_index] || []
-    
+
     render json: {
       success: true,
       data: paginated_users,
