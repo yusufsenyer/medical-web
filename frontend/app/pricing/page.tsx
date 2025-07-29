@@ -63,7 +63,7 @@ export default function PricingPage() {
                     </Badge>
                   )}
 
-                  <div className="p-8 lg:p-10 h-full flex flex-col">
+                  <div className={`p-8 lg:p-10 h-full ${pkg.popular ? '' : 'flex flex-col'}`}>
                     {/* Package Header */}
                     <div className="text-center mb-8">
                       <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${pkg.color} shadow-lg mb-6`}>
@@ -87,7 +87,7 @@ export default function PricingPage() {
                     </div>
 
                     {/* Features List */}
-                    <ul className="space-y-4 mb-8 flex-grow">
+                    <ul className={`space-y-4 mb-8 ${pkg.popular ? '' : 'flex-grow'}`}>
                       {pkg.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start space-x-3">
                           <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -97,7 +97,7 @@ export default function PricingPage() {
                     </ul>
 
                     {/* CTA Button */}
-                    <div className="mt-auto">
+                    <div className={pkg.popular ? '' : 'mt-auto'}>
                       <Link href="/order">
                         <Button
                           className={`w-full py-6 text-lg font-semibold rounded-xl ${

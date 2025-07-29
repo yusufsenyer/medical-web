@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useStore } from '@/lib/store'
+import { useAuth } from '@/hooks/use-auth'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,18 +26,28 @@ interface PersonalInfoStepProps {
 
 export function PersonalInfoStep({ onValidation }: PersonalInfoStepProps) {
   const { currentOrder, updateOrder } = useStore()
+  const { user } = useAuth()
 
   const form = useForm<PersonalInfoData>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      customer_name: currentOrder.customer_name || '',
-      customer_surname: currentOrder.customer_surname || '',
-      customer_email: currentOrder.customer_email || '',
+      customer_name: currentOrder.customer_name || user?.firstName || '',
+      customer_surname: currentOrder.customer_surname || user?.lastName || '',
+      customer_email: currentOrder.customer_email || user?.email || '',
       profession: currentOrder.profession || ''
     }
   })
 
   const watchedValues = form.watch()
+
+  // Update form when user data is available
+  useEffect(() => {
+    if (user && !currentOrder.customer_name && !currentOrder.customer_surname && !currentOrder.customer_email) {
+      form.setValue('customer_name', user.firstName || '')
+      form.setValue('customer_surname', user.lastName || '')
+      form.setValue('customer_email', user.email || '')
+    }
+  }, [user, form, currentOrder])
 
   useEffect(() => {
     const subscription = form.watch((data) => {
