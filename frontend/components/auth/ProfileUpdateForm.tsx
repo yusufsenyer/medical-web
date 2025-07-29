@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -43,14 +43,19 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
   })
 
   // Watch for form changes
-  const watchedValues = form.watch()
-  useState(() => {
-    const currentValues = form.getValues()
-    const hasChanged = Object.keys(currentValues).some(key => {
-      return currentValues[key as keyof ProfileUpdateData] !== initialData?.[key as keyof ProfileUpdateData]
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      const hasChanged = Object.keys(value).some(key => {
+        const currentValue = value[key as keyof ProfileUpdateData]
+        const initialValue = initialData?.[key as keyof ProfileUpdateData] || user?.[key as keyof typeof user] || ''
+        return currentValue !== initialValue
+      })
+      console.log('Form changes detected:', { hasChanged, value, initialData, user })
+      setHasChanges(hasChanged)
     })
-    setHasChanges(hasChanged)
-  })
+
+    return () => subscription.unsubscribe()
+  }, [form, initialData, user])
 
   const onSubmit = async (data: ProfileUpdateData) => {
     setIsLoading(true)
@@ -284,6 +289,10 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              {/* Debug info */}
+              <div className="text-xs text-gray-500 mb-2">
+                Debug: isLoading={isLoading.toString()}, success={success.toString()}, hasChanges={hasChanges.toString()}
+              </div>
               <Button
                 type="submit"
                 className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
