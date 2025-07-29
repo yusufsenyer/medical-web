@@ -16,7 +16,7 @@ export default function PricingPage() {
       
       <main>
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20">
+        <section className="bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50 py-20">
           <div className="container mx-auto px-4 text-center">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -24,9 +24,9 @@ export default function PricingPage() {
               transition={{ duration: 0.8 }}
               className="text-4xl lg:text-5xl font-bold mb-6"
             >
-              Web Siteniz İçin{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Mükemmel Paketi
+              Kliniğiniz İçin{' '}
+              <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                İdeal Paketi
               </span>{' '}
               Seçin
             </motion.h1>
@@ -37,8 +37,8 @@ export default function PricingPage() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-xl text-gray-600 max-w-3xl mx-auto mb-8"
             >
-              İhtiyacınıza göre tasarlanmış paketler ve ek özellikler. 
-              Profesyonel web sitenizi bugün oluşturmaya başlayın.
+              Doktorlar için özel tasarlanmış paketler ve tıbbi özellikler.
+              Hasta odaklı profesyonel web sitenizi bugün oluşturun.
             </motion.p>
           </div>
         </section>
@@ -72,7 +72,7 @@ export default function PricingPage() {
                       whileInView={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.15 + 0.3, duration: 0.5, type: "spring" }}
                     >
-                      <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-2 text-sm font-semibold animate-pulse">
+                      <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-teal-500 to-blue-600 text-white px-6 py-2 text-sm font-semibold animate-pulse">
                         🎯 En Popüler
                       </Badge>
                     </motion.div>
@@ -194,7 +194,7 @@ export default function PricingPage() {
                           <Button
                             className={`w-full py-6 text-lg font-semibold rounded-xl ${
                               pkg.popular
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700'
+                                ? 'bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700'
                                 : `bg-gradient-to-r ${pkg.color} hover:opacity-90`
                             } transition-all duration-300 shadow-lg hover:shadow-xl`}
                           >
@@ -223,8 +223,8 @@ export default function PricingPage() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-                Ek{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Tıbbi{' '}
+                <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
                   Özellikler
                 </span>
               </h2>
@@ -268,7 +268,7 @@ export default function PricingPage() {
                           type: "spring"
                         }}
                       >
-                        <Plus className="h-5 w-5 text-blue-500" />
+                        <Plus className="h-5 w-5 text-teal-500" />
                       </motion.div>
                       <span className="font-semibold text-gray-900">{feature.name}</span>
                     </div>
@@ -299,7 +299,7 @@ export default function PricingPage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold mb-4">
                 Sıkça Sorulan{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
                   Sorular
                 </span>
               </h2>
@@ -340,7 +340,7 @@ export default function PricingPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-br from-blue-600 to-purple-700">
+        <section className="py-20 bg-gradient-to-br from-teal-600 to-blue-700">
           <div className="container mx-auto px-4 text-center">
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
@@ -355,7 +355,7 @@ export default function PricingPage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
+              className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto"
             >
               Risk almadan test edin, beğenmezseniz para iadesi garantimiz var.
             </motion.p>
@@ -364,9 +364,9 @@ export default function PricingPage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-            >
+            >{/*  */}
               <Link href="/order">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-6 text-lg font-semibold">
+                <Button size="lg" className="bg-white text-teal-600 hover:bg-gray-100 px-8 py-6 text-lg font-semibold">
                   Hemen Başla - Ücretsiz Deneme
                   <ArrowRight className="ml-2 h-5 w-5" />
 x                 </Button>

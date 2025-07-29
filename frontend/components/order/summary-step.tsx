@@ -67,7 +67,13 @@ export function SummaryStep({ onValidation }: SummaryStepProps) {
         status: 'pending',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        knowledge_text: currentOrder.knowledge_text || currentOrder.special_requests || ''
+        knowledge_text: currentOrder.knowledge_text || currentOrder.special_requests || '',
+        // Sosyal medya hesapları
+        facebook: currentOrder.facebook || '',
+        instagram: currentOrder.instagram || '',
+        twitter: currentOrder.twitter || '',
+        linkedin: currentOrder.linkedin || '',
+        youtube: currentOrder.youtube || ''
       }
 
       // Siparişi store'a ekle (backend'e gönder)
@@ -134,6 +140,55 @@ export function SummaryStep({ onValidation }: SummaryStepProps) {
                   <p className="font-medium">{currentOrder.profession}</p>
                 </div>
               </div>
+
+              {/* Sosyal Medya Hesapları */}
+              {(currentOrder.facebook || currentOrder.instagram || currentOrder.twitter || currentOrder.linkedin || currentOrder.youtube) && (
+                <div className="mt-4 pt-4 border-t">
+                  <span className="text-sm text-gray-500 block mb-2">Sosyal Medya Hesapları</span>
+                  <div className="flex flex-wrap gap-2">
+                    {currentOrder.facebook && (
+                      <div className="flex items-center space-x-1 bg-blue-50 px-2 py-1 rounded text-xs">
+                        <div className="w-3 h-3 bg-blue-600 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">f</span>
+                        </div>
+                        <span>{currentOrder.facebook}</span>
+                      </div>
+                    )}
+                    {currentOrder.instagram && (
+                      <div className="flex items-center space-x-1 bg-purple-50 px-2 py-1 rounded text-xs">
+                        <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">i</span>
+                        </div>
+                        <span>{currentOrder.instagram}</span>
+                      </div>
+                    )}
+                    {currentOrder.twitter && (
+                      <div className="flex items-center space-x-1 bg-blue-50 px-2 py-1 rounded text-xs">
+                        <div className="w-3 h-3 bg-blue-400 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">x</span>
+                        </div>
+                        <span>{currentOrder.twitter}</span>
+                      </div>
+                    )}
+                    {currentOrder.linkedin && (
+                      <div className="flex items-center space-x-1 bg-blue-50 px-2 py-1 rounded text-xs">
+                        <div className="w-3 h-3 bg-blue-700 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">in</span>
+                        </div>
+                        <span>{currentOrder.linkedin}</span>
+                      </div>
+                    )}
+                    {currentOrder.youtube && (
+                      <div className="flex items-center space-x-1 bg-red-50 px-2 py-1 rounded text-xs">
+                        <div className="w-3 h-3 bg-red-600 rounded flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">yt</span>
+                        </div>
+                        <span>{currentOrder.youtube}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

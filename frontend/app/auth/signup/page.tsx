@@ -32,11 +32,11 @@ export default function SignUpPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative w-full max-w-md">
@@ -48,11 +48,11 @@ export default function SignUpPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", duration: 0.5 }}
-                className="mx-auto w-16 h-16 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full flex items-center justify-center mb-4"
+                className="mx-auto w-16 h-16 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-full flex items-center justify-center mb-4"
               >
-                <CheckCircle className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-8 w-8 text-teal-600" />
               </motion.div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
                 Hesap Oluşturuldu!
               </CardTitle>
               <p className="text-sm text-gray-600">
@@ -60,11 +60,11 @@ export default function SignUpPage() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200/50">
-                <p className="text-sm font-medium mb-2 text-blue-800">
+              <div className="p-4 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200/50">
+                <p className="text-sm font-medium mb-2 text-teal-800">
                   Hoş Geldiniz!
                 </p>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-teal-700">
                   <strong>{userEmail}</strong> ile hesabınız başarıyla oluşturuldu.
                   Şimdi giriş yapabilirsiniz.
                 </p>
@@ -73,7 +73,7 @@ export default function SignUpPage() {
               <div className="space-y-3">
                 <Button
                   onClick={() => router.push('/auth/login')}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
+                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold"
                 >
                   Giriş Yap
                 </Button>
@@ -81,7 +81,7 @@ export default function SignUpPage() {
                 <Button
                   variant="outline"
                   onClick={() => router.push('/')}
-                  className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                  className="w-full border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300"
                 >
                   Ana Sayfaya Dön
                 </Button>
@@ -95,11 +95,11 @@ export default function SignUpPage() {
 
   return (
     <AuthGuard requireGuest={true}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-cyan-50 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-teal-400/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative w-full max-w-md">

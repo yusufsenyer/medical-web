@@ -79,7 +79,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
   return (
     <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
           Giriş Yap
         </CardTitle>
         <p className="text-sm text-gray-600 text-center">
@@ -175,8 +175,8 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
                   <div
                     className={`w-4 h-4 border-2 rounded cursor-pointer transition-all duration-200 ${
                       rememberMe
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 border-blue-500'
-                        : 'border-blue-300 hover:border-blue-400'
+                        ? 'bg-gradient-to-r from-teal-500 to-blue-600 border-teal-500'
+                        : 'border-teal-300 hover:border-teal-400'
                     } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={() => !isLoading && setRememberMe(!rememberMe)}
                   >
@@ -212,7 +212,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
+              className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -250,9 +250,9 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         </div>
 
         {/* Demo credentials info */}
-        <div className="mt-6 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200/50">
-          <p className="text-xs font-medium mb-1 text-blue-800">Admin Hesap:</p>
-          <p className="text-xs text-blue-700">
+        <div className="mt-6 p-3 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200/50">
+          <p className="text-xs font-medium mb-1 text-teal-800">Admin Hesap:</p>
+          <p className="text-xs text-teal-700">
             E-posta: admin123@example.com<br />
             Şifre: admin123
           </p>

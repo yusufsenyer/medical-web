@@ -30,11 +30,11 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-purple-600">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-teal-500 to-blue-600">
             <Globe className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            WebBuilder Pro
+          <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+            MedicalWeb Pro
           </span>
         </Link>
 
@@ -56,7 +56,7 @@ export function Header() {
           {isAuthenticated ? (
             <>
               <Link href="/auth/profile">
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                   <User className="h-4 w-4" />
                   <span>{user?.firstName || user?.email}</span>
                 </Button>
@@ -64,13 +64,13 @@ export function Header() {
 
               {user?.role === 'admin' ? (
                 <Link href="/admin">
-                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300">
+                  <Button variant="outline" size="sm" className="border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
                     Admin Panel
                   </Button>
                 </Link>
               ) : (
                 <Link href="/dashboard">
-                  <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300">
+                  <Button variant="outline" size="sm" className="border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
                     Siparişlerim
                   </Button>
                 </Link>
@@ -89,12 +89,12 @@ export function Header() {
           ) : (
             <>
               <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                <Button variant="ghost" size="sm" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                   Giriş Yap
                 </Button>
               </Link>
               <Link href="/auth/signup">
-                <Button variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300">
+                <Button variant="outline" size="sm" className="border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
                   Kayıt Ol
                 </Button>
               </Link>
@@ -136,7 +136,7 @@ export function Header() {
               {isAuthenticated ? (
                 <>
                   <Link href="/auth/profile">
-                    <Button variant="ghost" className="w-full justify-start flex items-center space-x-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                    <Button variant="ghost" className="w-full justify-start flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       <User className="h-4 w-4" />
                       <span>{user?.firstName || user?.email}</span>
                     </Button>
@@ -144,13 +144,13 @@ export function Header() {
 
                   {user?.role === 'admin' ? (
                     <Link href="/admin">
-                      <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300">
+                      <Button variant="outline" className="w-full border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
                         Admin Panel
                       </Button>
                     </Link>
                   ) : (
                     <Link href="/dashboard">
-                      <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300">
+                      <Button variant="outline" className="w-full border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
                         Siparişlerim
                       </Button>
                     </Link>
@@ -167,12 +167,12 @@ export function Header() {
               ) : (
                 <>
                   <Link href="/auth/login">
-                    <Button variant="ghost" className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                    <Button variant="ghost" className="w-full justify-start text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       Giriş Yap
                     </Button>
                   </Link>
                   <Link href="/auth/signup">
-                    <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300">
+                    <Button variant="outline" className="w-full border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
                       Kayıt Ol
                     </Button>
                   </Link>

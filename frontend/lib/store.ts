@@ -3,6 +3,22 @@ import { create } from 'zustand'
 // API Configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
 
+// Mock Users for Development
+const MOCK_USERS: User[] = [
+  {
+    id: 'admin-1',
+    email: 'admin123@example.com',
+    firstName: 'Admin',
+    lastName: 'User',
+    fullName: 'Admin User',
+    password: 'admin123',
+    role: 'admin',
+    isEmailVerified: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+]
+
 export interface Feature {
   id: string
   name: string
@@ -31,6 +47,11 @@ export interface Order {
   knowledge_text?: string
   created_at?: string
   updated_at?: string
+  instagram?: string
+  facebook?: string
+  twitter?: string
+  linkedin?: string
+  youtube?: string
 }
 
 export interface User {
@@ -484,7 +505,52 @@ export const useStore = create<StoreState>((set, get) => ({
     set((state) => ({ auth: { ...state.auth, isLoading: true } }))
 
     try {
-      // Call Rails backend API
+      // Check mock users first
+      const mockUser = MOCK_USERS.find(u => u.email === email && u.password === password)
+
+      if (mockUser) {
+        // Mock login success
+        const user: User = {
+          id: mockUser.id,
+          email: mockUser.email,
+          firstName: mockUser.firstName || '',
+          lastName: mockUser.lastName || '',
+          fullName: mockUser.fullName || `${mockUser.firstName} ${mockUser.lastName}`,
+          role: mockUser.role,
+          phone: '',
+          company: '',
+          bio: '',
+          isEmailVerified: true,
+          createdAt: mockUser.createdAt,
+          updatedAt: mockUser.updatedAt
+        }
+
+        const token = 'mock-admin-token-' + Date.now()
+
+        // Store in localStorage
+        localStorage.setItem('auth-token', token)
+        localStorage.setItem('user-data', JSON.stringify(user))
+
+        // Check if this is first login (no previous login data)
+        const isFirstLogin = !localStorage.getItem('has-logged-in-before')
+        if (isFirstLogin && user.role !== 'admin') {
+          localStorage.setItem('is-first-login', 'true')
+        }
+        localStorage.setItem('has-logged-in-before', 'true')
+
+        set((state) => ({
+          auth: {
+            user,
+            token,
+            isAuthenticated: true,
+            isLoading: false
+          }
+        }))
+
+        return true
+      }
+
+      // If not found in mock users, try backend API
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {

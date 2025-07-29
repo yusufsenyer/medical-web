@@ -188,7 +188,7 @@ export default function CustomerDashboard() {
           <div className="flex items-center space-x-4">
             <Button
               onClick={() => router.push('/order')}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white"
             >
               <Plus className="h-4 w-4 mr-2" />
               Yeni Sipariş
@@ -266,7 +266,7 @@ export default function CustomerDashboard() {
                       key={order.id}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="border rounded-lg p-4 hover:shadow-md transition-all bg-gradient-to-br from-green-50 to-blue-50"
+                      className="border rounded-lg p-4 hover:shadow-md transition-all bg-gradient-to-br from-teal-50 to-blue-50"
                     >
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -292,7 +292,7 @@ export default function CustomerDashboard() {
                         <div className="flex space-x-2">
                           <Button
                             onClick={() => window.open(order.websiteUrl, '_blank')}
-                            className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                            className="flex-1 bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white"
                             size="sm"
                           >
                             <Globe className="h-4 w-4 mr-1" />
@@ -327,7 +327,7 @@ export default function CustomerDashboard() {
                 </p>
                 <Button
                   onClick={() => router.push('/order')}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   İlk Siparişimi Ver

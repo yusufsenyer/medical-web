@@ -49,13 +49,13 @@ export function FeaturesSection() {
             className="space-y-4"
           >
             <h2 className="text-3xl lg:text-5xl font-black text-gray-900">
-              Güçlü Özellikler,
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                Kolay Kullanım
+              Tıbbi Özellikler,
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
+                Hasta Odaklı Tasarım
               </span>
             </h2>
             <p className="text-xl text-gray-600">
-              Profesyonel web siteniz için ihtiyacınız olan her şey tek platformda
+              Kliniğiniz için ihtiyacınız olan tüm tıbbi özellikler tek platformda
             </p>
           </motion.div>
         </div>
@@ -72,13 +72,13 @@ export function FeaturesSection() {
             >
               <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-full">
                 {/* Icon */}
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-r from-teal-600 to-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="h-8 w-8 text-white" />
                 </div>
 
                 {/* Content */}
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-teal-600 transition-colors">
                     {feature.title}
                   </h3>
                   <p className="text-gray-600 text-lg leading-relaxed">
@@ -125,13 +125,13 @@ export function FeaturesSection() {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 className="group"
               >
-                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-200">
+                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-teal-200">
                   <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
-                      <feature.icon className="h-6 w-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center group-hover:bg-teal-200 transition-colors duration-300">
+                      <feature.icon className="h-6 w-6 text-teal-600" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                      <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-teal-600 transition-colors">
                         {feature.title}
                       </h4>
                       <p className="text-gray-600 text-sm">
@@ -181,10 +181,10 @@ export function FeaturesSection() {
             ].map((item, index) => (
               <div key={item.step} className="text-center relative">
                 {index < 2 && (
-                  <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-blue-200 to-purple-200 transform -translate-y-1/2"></div>
+                  <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-teal-200 to-blue-200 transform -translate-y-1/2"></div>
                 )}
 
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-teal-600 to-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
                   {item.step}
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-2">
@@ -198,9 +198,9 @@ export function FeaturesSection() {
           </div>
 
           <div className="text-center mt-12">
-            <Link href="/order">
-              <Button size="lg" className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Hemen Başlayın
+            <Link href="/auth/signup">
+              <Button size="lg" className="group bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                Kliniğinizi Dijitalleştirin
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>

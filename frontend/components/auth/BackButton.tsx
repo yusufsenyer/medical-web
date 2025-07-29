@@ -25,7 +25,7 @@ export function BackButton({
     <Button
       variant="ghost"
       onClick={handleClick}
-      className={`flex items-center space-x-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors ${className}`}
+      className={`flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 transition-colors ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
       <span>{label}</span>

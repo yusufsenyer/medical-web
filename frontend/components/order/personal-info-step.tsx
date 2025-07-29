@@ -15,7 +15,12 @@ const personalInfoSchema = z.object({
   customer_name: z.string().min(2, 'İsim en az 2 karakter olmalıdır'),
   customer_surname: z.string().min(2, 'Soyisim en az 2 karakter olmalıdır'),
   customer_email: z.string().email('Geçerli bir e-mail adresi giriniz'),
-  profession: z.string().min(1, 'Meslek seçimi zorunludur')
+  profession: z.string().min(1, 'Uzmanlık alanı seçimi zorunludur'),
+  instagram: z.string().optional(),
+  facebook: z.string().optional(),
+  twitter: z.string().optional(),
+  linkedin: z.string().optional(),
+  youtube: z.string().optional()
 })
 
 type PersonalInfoData = z.infer<typeof personalInfoSchema>
@@ -34,7 +39,12 @@ export function PersonalInfoStep({ onValidation }: PersonalInfoStepProps) {
       customer_name: currentOrder.customer_name || user?.firstName || '',
       customer_surname: currentOrder.customer_surname || user?.lastName || '',
       customer_email: currentOrder.customer_email || user?.email || '',
-      profession: currentOrder.profession || ''
+      profession: currentOrder.profession || '',
+      instagram: currentOrder.instagram || '',
+      facebook: currentOrder.facebook || '',
+      twitter: currentOrder.twitter || '',
+      linkedin: currentOrder.linkedin || '',
+      youtube: currentOrder.youtube || ''
     }
   })
 
@@ -121,11 +131,11 @@ export function PersonalInfoStep({ onValidation }: PersonalInfoStepProps) {
             name="profession"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mesleğiniz *</FormLabel>
+                <FormLabel>Uzmanlık Alanınız *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Mesleğinizi seçiniz" />
+                      <SelectValue placeholder="Uzmanlık alanınızı seçiniz" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -140,14 +150,92 @@ export function PersonalInfoStep({ onValidation }: PersonalInfoStepProps) {
               </FormItem>
             )}
           />
+
+          {/* Sosyal Medya Hesapları */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Sosyal Medya Hesapları</h3>
+            <p className="text-sm text-gray-600">Web sitenizde görüntülenecek sosyal medya hesaplarınızı ekleyin (isteğe bağlı)</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="instagram"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Instagram</FormLabel>
+                    <FormControl>
+                      <Input placeholder="@kullaniciadi veya tam URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="facebook"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Facebook</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Sayfa adı veya tam URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="linkedin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>LinkedIn</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Profil adı veya tam URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="twitter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Twitter/X</FormLabel>
+                    <FormControl>
+                      <Input placeholder="@kullaniciadi veya tam URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="youtube"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>YouTube</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Kanal adı veya tam URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </form>
       </Form>
 
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">Bilgi</h3>
-        <p className="text-blue-800 text-sm">
-          Girdiğiniz bilgiler web sitenizin içeriğinin kişiselleştirilmesi için kullanılacaktır. 
-          Mesleğinize özel şablonlar ve öneriler sunacağız.
+      <div className="bg-teal-50 p-4 rounded-lg">
+        <h3 className="font-semibold text-teal-900 mb-2">Bilgi</h3>
+        <p className="text-teal-800 text-sm">
+          Girdiğiniz bilgiler klinik web sitenizin içeriğinin kişiselleştirilmesi için kullanılacaktır.
+          Uzmanlık alanınıza özel tıbbi şablonlar ve hasta odaklı öneriler sunacağız.
         </p>
       </div>
     </div>

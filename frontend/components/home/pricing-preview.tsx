@@ -84,26 +84,26 @@ export function PricingPreview() {
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
-            <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
+            <div className="inline-flex items-center space-x-2 bg-teal-50 border border-teal-200 text-teal-700 px-4 py-2 rounded-full text-sm font-medium">
               <Star className="h-4 w-4" />
               <span>Şeffaf Fiyatlandırma</span>
             </div>
 
             <h2 className="text-3xl lg:text-5xl font-black text-gray-900">
-              Basit ve
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              Doktor Dostu
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
                 Uygun Fiyatlar
               </span>
             </h2>
 
             <p className="text-xl text-gray-600">
-              Gizli ücret yok, aylık abonelik yok. Tek seferlik ödeme ile web siteniz sonsuza kadar sizin.
+              Gizli ücret yok, aylık abonelik yok. Tek seferlik ödeme ile klinik web siteniz sonsuza kadar sizin.
             </p>
 
             {/* Special Offer */}
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg">
               <span>⚡</span>
-              <span>Sınırlı Süre: %33 İndirim!</span>
+              <span>Doktorlara Özel: %25 İndirim!</span>
               <span>⚡</span>
             </div>
           </motion.div>
@@ -141,14 +141,14 @@ export function PricingPreview() {
                     }}
                     className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10"
                   >
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 text-xs font-bold animate-pulse">
+                    <Badge className="bg-gradient-to-r from-teal-600 to-blue-600 text-white px-4 py-1 text-xs font-bold animate-pulse">
                       EN POPÜLER
                     </Badge>
                   </motion.div>
                 )}
 
                 <div className={`bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border-2 ${
-                  plan.popular ? 'border-blue-200 ring-4 ring-blue-50' : 'border-gray-100'
+                  plan.popular ? 'border-teal-200 ring-4 ring-teal-50' : 'border-gray-100'
                 } h-full`}>
 
                   <div className="p-8">
@@ -293,7 +293,7 @@ export function PricingPreview() {
                           <Button
                             className={`w-full py-3 font-semibold rounded-xl transition-all duration-300 ${
                               plan.popular
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
+                                ? 'bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl'
                                 : 'bg-gray-900 hover:bg-gray-800 text-white'
                             }`}
                           >
@@ -361,18 +361,18 @@ export function PricingPreview() {
           transition={{ delay: 0.6, duration: 0.8 }}
           className="mt-20 text-center"
         >
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 lg:p-12 text-white max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-teal-600 to-blue-600 rounded-2xl p-8 lg:p-12 text-white max-w-4xl mx-auto">
             <h3 className="text-2xl lg:text-3xl font-bold mb-4">
               Hala Karar Veremediniz mi?
             </h3>
-            <p className="text-blue-100 mb-8 text-lg">
-              Uzmanlarımızla konuşun, size en uygun paketi birlikte belirleyelim.
+            <p className="text-teal-100 mb-8 text-lg">
+              Tıbbi web tasarım uzmanlarımızla konuşun, kliniğinize en uygun paketi birlikte belirleyelim.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 variant="secondary"
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-3"
+                className="bg-white text-teal-600 hover:bg-teal-50 font-semibold px-8 py-3"
               >
                 Ücretsiz Danışmanlık
               </Button>
@@ -380,7 +380,7 @@ export function PricingPreview() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3"
+                  className="border-white text-white hover:bg-white hover:text-teal-600 font-semibold px-8 py-3"
                 >
                   Detaylı Karşılaştırma
                   <ArrowRight className="ml-2 h-4 w-4" />

@@ -9,19 +9,19 @@ export function Footer() {
           {/* Company Info */}
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-purple-600">
-                <span className="text-white font-bold">W</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-teal-500 to-blue-600">
+                <span className="text-white font-bold">M</span>
               </div>
-              <span className="text-xl font-bold">WebBuilder Pro</span>
+              <span className="text-xl font-bold">MedicalWeb Pro</span>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Profesyonel web sitelerinizi dakikalar içinde oluşturun. 
-              AI destekli teknoloji ile mesleğinize özel çözümler.
+              Doktorlar için özel tasarlanmış profesyonel web siteleri.
+              Hasta odaklı tasarım ile kliniğinizi dijitalleştirin.
             </p>
             <div className="flex space-x-4">
-              <Facebook className="h-5 w-5 text-gray-400 hover:text-blue-500 cursor-pointer transition-colors" />
-              <Twitter className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors" />
-              <Instagram className="h-5 w-5 text-gray-400 hover:text-pink-500 cursor-pointer transition-colors" />
+              <Facebook className="h-5 w-5 text-gray-400 hover:text-teal-500 cursor-pointer transition-colors" />
+              <Twitter className="h-5 w-5 text-gray-400 hover:text-teal-400 cursor-pointer transition-colors" />
+              <Instagram className="h-5 w-5 text-gray-400 hover:text-teal-500 cursor-pointer transition-colors" />
               <Linkedin className="h-5 w-5 text-gray-400 hover:text-blue-600 cursor-pointer transition-colors" />
             </div>
           </div>
@@ -40,13 +40,13 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="font-semibold mb-4">Hizmetler</h3>
+            <h3 className="font-semibold mb-4">Tıbbi Hizmetler</h3>
             <ul className="space-y-2 text-sm">
-              <li><span className="text-gray-400">Web Tasarımı</span></li>
-              <li><span className="text-gray-400">SEO Optimizasyonu</span></li>
-              <li><span className="text-gray-400">E-ticaret Çözümleri</span></li>
-              <li><span className="text-gray-400">Mobil Uyumluluk</span></li>
-              <li><span className="text-gray-400">Teknik Destek</span></li>
+              <li><span className="text-gray-400">Klinik Web Tasarımı</span></li>
+              <li><span className="text-gray-400">Tıbbi SEO</span></li>
+              <li><span className="text-gray-400">Randevu Sistemi</span></li>
+              <li><span className="text-gray-400">Hasta Portal</span></li>
+              <li><span className="text-gray-400">Telemedicine</span></li>
             </ul>
           </div>
 
@@ -55,15 +55,15 @@ export function Footer() {
             <h3 className="font-semibold mb-4">İletişim</h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-blue-500" />
-                <span className="text-gray-400">info@webbuilder.com</span>
+                <Mail className="h-4 w-4 text-teal-500" />
+                <span className="text-gray-400">info@medicalweb.com</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-blue-500" />
+                <Phone className="h-4 w-4 text-teal-500" />
                 <span className="text-gray-400">+90 212 555 0123</span>
               </div>
               <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-blue-500" />
+                <MapPin className="h-4 w-4 text-teal-500" />
                 <span className="text-gray-400">İstanbul, Türkiye</span>
               </div>
             </div>
@@ -72,7 +72,7 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 WebBuilder Pro. Tüm hakları saklıdır.
+            © 2024 MedicalWeb Pro. Tüm hakları saklıdır.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">

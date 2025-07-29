@@ -18,19 +18,19 @@ export function HeroSection() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-20 left-20 w-32 h-32 border-2 border-blue-200 rounded-full opacity-30"
+          className="absolute top-20 left-20 w-32 h-32 border-2 border-teal-200 rounded-full opacity-30"
         ></motion.div>
 
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-purple-200 to-blue-200 rounded-lg opacity-20"
+          className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-teal-200 to-blue-200 rounded-lg opacity-20"
         ></motion.div>
 
         <motion.div
           animate={{ y: [-20, 20, -20] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-40 left-32 w-16 h-16 bg-gradient-to-r from-blue-300 to-purple-300 rounded-full opacity-25"
+          className="absolute bottom-40 left-32 w-16 h-16 bg-gradient-to-r from-teal-300 to-blue-300 rounded-full opacity-25"
         ></motion.div>
       </div>
 
@@ -50,26 +50,26 @@ export function HeroSection() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-full text-sm font-medium"
+                className="inline-flex items-center space-x-2 bg-teal-50 border border-teal-200 text-teal-700 px-4 py-2 rounded-full text-sm font-medium"
               >
                 <Rocket className="h-4 w-4" />
-                <span>Yeni Nesil Web Tasarım Platformu</span>
+                <span>Doktorlar İçin Özel Web Tasarım Platformu</span>
               </motion.div>
 
               {/* Main Heading */}
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-black leading-tight text-gray-900">
-                  Web Sitenizi
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                    5 Dakikada
+                  Kliniğinizin
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
+                    Dijital Kimliği
                   </span>
-                  Oluşturun
+                  Burada Başlar
                 </h1>
 
                 <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-                  AI destekli teknoloji ile profesyonel web sitesi tasarlayın.
-                  <span className="font-semibold text-gray-900"> Kod bilgisi gerektirmez</span>,
-                  dakikalar içinde yayında!
+                  Doktorlar için özel tasarlanmış web sitesi platformu.
+                  <span className="font-semibold text-gray-900"> Hasta odaklı tasarım</span>,
+                  profesyonel görünüm!
                 </p>
               </div>
 
@@ -103,14 +103,14 @@ export function HeroSection() {
                 transition={{ delay: 0.8, duration: 0.5 }}
                 className="flex flex-col sm:flex-row gap-4"
               >
-                <Link href="/order">
-                  <Button size="lg" className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                    Hemen Başla
+                <Link href="/auth/signup">
+                  <Button size="lg" className="group bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    Kliniğinizi Dijitalleştirin
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
 
-                <Button size="lg" variant="outline" className="group px-8 py-4 text-lg font-semibold border-2 border-gray-300 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300">
+                <Button size="lg" variant="outline" className="group px-8 py-4 text-lg font-semibold border-2 border-gray-300 hover:border-teal-300 hover:bg-teal-50 transition-all duration-300">
                   <Play className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
                   Demo İzle
                 </Button>
@@ -166,10 +166,10 @@ export function HeroSection() {
                     <div className="p-8 space-y-6">
                       {/* Header */}
                       <div className="flex items-center justify-between">
-                        <div className="w-32 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded"></div>
+                        <div className="w-32 h-8 bg-gradient-to-r from-teal-500 to-blue-600 rounded"></div>
                         <div className="flex space-x-2">
                           <div className="w-16 h-6 bg-gray-200 rounded"></div>
-                          <div className="w-16 h-6 bg-blue-500 rounded"></div>
+                          <div className="w-16 h-6 bg-teal-500 rounded"></div>
                         </div>
                       </div>
 
@@ -177,14 +177,14 @@ export function HeroSection() {
                       <div className="space-y-4">
                         <div className="w-3/4 h-6 bg-gray-800 rounded"></div>
                         <div className="w-1/2 h-4 bg-gray-400 rounded"></div>
-                        <div className="w-24 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded"></div>
+                        <div className="w-24 h-8 bg-gradient-to-r from-teal-500 to-blue-600 rounded"></div>
                       </div>
 
                       {/* Cards */}
                       <div className="grid grid-cols-3 gap-4">
+                        <div className="h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg"></div>
                         <div className="h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg"></div>
-                        <div className="h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg"></div>
-                        <div className="h-20 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-lg"></div>
+                        <div className="h-20 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg"></div>
                       </div>
                     </div>
                   </div>
@@ -202,12 +202,12 @@ export function HeroSection() {
                       <div className="w-8 h-1 bg-gray-400 rounded-full"></div>
                     </div>
                     <div className="p-3 space-y-2">
-                      <div className="w-full h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded"></div>
+                      <div className="w-full h-2 bg-gradient-to-r from-teal-500 to-blue-600 rounded"></div>
                       <div className="w-3/4 h-1 bg-gray-300 rounded"></div>
                       <div className="w-1/2 h-1 bg-gray-300 rounded"></div>
                       <div className="grid grid-cols-2 gap-1 mt-2">
+                        <div className="h-8 bg-teal-100 rounded"></div>
                         <div className="h-8 bg-blue-100 rounded"></div>
-                        <div className="h-8 bg-purple-100 rounded"></div>
                       </div>
                     </div>
                   </div>
@@ -217,7 +217,7 @@ export function HeroSection() {
                 <motion.div
                   animate={{ y: [-10, 10, -10] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"
+                  className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-r from-teal-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg"
                 >
                   <Globe className="h-8 w-8 text-white" />
                 </motion.div>
@@ -225,7 +225,7 @@ export function HeroSection() {
                 <motion.div
                   animate={{ y: [10, -10, 10] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-1/2 -left-8 w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg"
+                  className="absolute top-1/2 -left-8 w-12 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg"
                 >
                   <Shield className="h-6 w-6 text-white" />
                 </motion.div>
@@ -243,34 +243,34 @@ export function HeroSection() {
         className="relative pb-20"
       >
         <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 lg:p-12 text-white shadow-2xl">
+          <div className="bg-gradient-to-r from-teal-600 to-blue-600 rounded-3xl p-8 lg:p-12 text-white shadow-2xl">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
               <div className="space-y-2">
                 <div className="text-3xl lg:text-4xl font-bold">
-                  <AnimatedCounter end={10000} suffix="+" />
+                  <AnimatedCounter end={5000} suffix="+" />
                 </div>
-                <div className="text-blue-100 font-medium">Mutlu Müşteri</div>
+                <div className="text-teal-100 font-medium">Mutlu Doktor</div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-3xl lg:text-4xl font-bold">
-                  <AnimatedCounter end={99} suffix="%" />
+                  <AnimatedCounter end={98} suffix="%" />
                 </div>
-                <div className="text-blue-100 font-medium">Memnuniyet</div>
+                <div className="text-teal-100 font-medium">Hasta Memnuniyeti</div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-3xl lg:text-4xl font-bold">
-                  <AnimatedCounter end={5} suffix=" dk" />
+                  <AnimatedCounter end={3} suffix=" dk" />
                 </div>
-                <div className="text-blue-100 font-medium">Kurulum Süresi</div>
+                <div className="text-teal-100 font-medium">Randevu Süresi</div>
               </div>
 
               <div className="space-y-2">
                 <div className="text-3xl lg:text-4xl font-bold">
                   <AnimatedCounter end={24} suffix="/7" />
                 </div>
-                <div className="text-blue-100 font-medium">Destek</div>
+                <div className="text-teal-100 font-medium">Tıbbi Destek</div>
               </div>
             </div>
           </div>

@@ -110,11 +110,11 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
   return (
     <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
           Hesap Oluştur
         </CardTitle>
         <p className="text-sm text-gray-600 text-center">
-          WebBuilder Pro'ya katılın ve profesyonel web sitenizi oluşturun
+          MedicalWeb Pro'ya katılın ve kliniğinizin web sitesini oluşturun
         </p>
       </CardHeader>
       <CardContent>
@@ -228,13 +228,13 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
                               style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
                             />
                           </div>
-                          <span className="text-xs font-medium text-blue-700">
+                          <span className="text-xs font-medium text-teal-700">
                             {getStrengthText(passwordStrength.score)}
                           </span>
                         </div>
                         
                         {passwordStrength.feedback.length > 0 && (
-                          <div className="text-xs text-blue-600">
+                          <div className="text-xs text-teal-600">
                             <p>Eksik gereksinimler:</p>
                             <ul className="list-disc list-inside space-y-1">
                               {passwordStrength.feedback.map((item, index) => (
@@ -305,8 +305,8 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
                       <div
                         className={`w-4 h-4 border-2 rounded cursor-pointer transition-all duration-200 ${
                           field.value
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 border-blue-500'
-                            : 'border-blue-300 hover:border-blue-400'
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 border-teal-500'
+                            : 'border-teal-300 hover:border-teal-400'
                         } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => !isLoading && field.onChange(!field.value)}
                       >
@@ -334,7 +334,7 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
+              className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold"
               disabled={isLoading}
             >
               {isLoading ? (

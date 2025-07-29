@@ -11,7 +11,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PersonalInfoStep } from '@/components/order/personal-info-step'
 import { WebsiteDetailsStep } from '@/components/order/website-details-step'
 import { DesignPreferencesStep } from '@/components/order/design-preferences-step'
-import { FeaturesStep } from '@/components/order/features-step'
 import { KnowledgeStep } from '@/components/order/knowledge-step'
 import { SummaryStep } from '@/components/order/summary-step'
 import { AuthGuard } from '@/components/auth/AuthGuard'
@@ -20,9 +19,8 @@ const steps = [
   { id: 1, name: 'Kişisel Bilgiler', component: PersonalInfoStep },
   { id: 2, name: 'Web Sitesi Detayları', component: WebsiteDetailsStep },
   { id: 3, name: 'Tasarım Tercihleri', component: DesignPreferencesStep },
-  { id: 4, name: 'Ek Özellikler', component: FeaturesStep },
-  { id: 5, name: 'Özel İstekler', component: KnowledgeStep },
-  { id: 6, name: 'Özet & Ödeme', component: SummaryStep }
+  { id: 4, name: 'Özel İstekler', component: KnowledgeStep },
+  { id: 5, name: 'Özet & Ödeme', component: SummaryStep }
 ]
 
 export default function OrderPage() {

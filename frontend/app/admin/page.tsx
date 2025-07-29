@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PAGE_OPTIONS } from '@/lib/constants'
@@ -227,7 +227,7 @@ Teslimat:
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'admin': return 'bg-red-100 text-red-800'
-      case 'customer': return 'bg-blue-100 text-blue-800'
+      case 'customer': return 'bg-teal-100 text-teal-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -266,7 +266,7 @@ Teslimat:
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'in_progress': return 'bg-blue-100 text-blue-800'
+      case 'in_progress': return 'bg-teal-100 text-teal-800'
       case 'completed': return 'bg-green-100 text-green-800'
       case 'delivered': return 'bg-purple-100 text-purple-800'
       default: return 'bg-gray-100 text-gray-800'
@@ -348,7 +348,7 @@ Teslimat:
         <main className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="flex items-center space-x-2">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+              <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
               <span className="text-lg text-muted-foreground">Veriler yükleniyor...</span>
             </div>
           </div>
@@ -367,7 +367,7 @@ Teslimat:
           <Button
             variant="ghost"
             onClick={() => router.push('/')}
-            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+            className="flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50 transition-colors duration-200"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Ana Sayfaya Dön</span>
@@ -394,7 +394,7 @@ Teslimat:
               <Link href="/auth/login">
                 <Button
                   variant="outline"
-                  className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                  className="border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300"
                 >
                   Admin Girişi
                 </Button>
@@ -423,7 +423,7 @@ Teslimat:
                     </select>
                     <button
                       onClick={() => setAutoRefresh(!autoRefresh)}
-                      className="text-xs text-blue-600 hover:text-blue-700"
+                      className="text-xs text-teal-600 hover:text-teal-700"
                     >
                       {autoRefresh ? 'Durdur' : 'Başlat'}
                     </button>
@@ -482,9 +482,9 @@ Teslimat:
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">Toplam Sipariş</p>
-                      <p className="text-2xl font-bold text-blue-600">{analytics.totalOrders || 0}</p>
+                      <p className="text-2xl font-bold text-teal-600">{analytics.totalOrders || 0}</p>
                     </div>
-                    <Package className="h-8 w-8 text-blue-600" />
+                    <Package className="h-8 w-8 text-teal-600" />
                   </div>
                 </CardContent>
               </Card>
@@ -793,6 +793,9 @@ Teslimat:
                 </Button>
               </div>
             </DialogTitle>
+            <DialogDescription>
+              Seçilen siparişin detaylı bilgilerini görüntüleyin ve düzenleyin.
+            </DialogDescription>
           </DialogHeader>
 
           {selectedOrder && (
@@ -824,6 +827,109 @@ Teslimat:
                       <Badge variant="outline">
                         {selectedOrder.profession || 'Belirtilmemiş'}
                       </Badge>
+                    </div>
+
+                    {/* Sosyal Medya Hesapları */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Sosyal Medya Hesapları</label>
+                      <div className="space-y-2 mt-2">
+                        {/* Debug: Tüm order verisini göster */}
+                        <details className="text-xs bg-gray-100 p-2 rounded">
+                          <summary>Debug: Order Data</summary>
+                          <pre className="mt-2 text-xs overflow-auto">
+                            {JSON.stringify(selectedOrder, null, 2)}
+                          </pre>
+                        </details>
+
+
+                        {(selectedOrder.facebook && selectedOrder.facebook.trim() !== '') && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">f</span>
+                            </div>
+                            <a
+                              href={selectedOrder.facebook.startsWith('http') ? selectedOrder.facebook : `https://facebook.com/${selectedOrder.facebook.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline text-sm"
+                            >
+                              {selectedOrder.facebook}
+                            </a>
+                          </div>
+                        )}
+
+                        {(selectedOrder.instagram && selectedOrder.instagram.trim() !== '') && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">i</span>
+                            </div>
+                            <a
+                              href={selectedOrder.instagram.startsWith('http') ? selectedOrder.instagram : `https://instagram.com/${selectedOrder.instagram.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-600 hover:underline text-sm"
+                            >
+                              {selectedOrder.instagram}
+                            </a>
+                          </div>
+                        )}
+
+                        {(selectedOrder.twitter && selectedOrder.twitter.trim() !== '') && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-blue-400 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">x</span>
+                            </div>
+                            <a
+                              href={selectedOrder.twitter.startsWith('http') ? selectedOrder.twitter : `https://twitter.com/${selectedOrder.twitter.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:underline text-sm"
+                            >
+                              {selectedOrder.twitter}
+                            </a>
+                          </div>
+                        )}
+
+                        {(selectedOrder.linkedin && selectedOrder.linkedin.trim() !== '') && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-blue-700 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">in</span>
+                            </div>
+                            <a
+                              href={selectedOrder.linkedin.startsWith('http') ? selectedOrder.linkedin : `https://linkedin.com/in/${selectedOrder.linkedin}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-700 hover:underline text-sm"
+                            >
+                              {selectedOrder.linkedin}
+                            </a>
+                          </div>
+                        )}
+
+                        {(selectedOrder.youtube && selectedOrder.youtube.trim() !== '') && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-red-600 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">yt</span>
+                            </div>
+                            <a
+                              href={selectedOrder.youtube.startsWith('http') ? selectedOrder.youtube : `https://youtube.com/${selectedOrder.youtube.replace('@', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-red-600 hover:underline text-sm"
+                            >
+                              {selectedOrder.youtube}
+                            </a>
+                          </div>
+                        )}
+
+                        {(!selectedOrder.facebook || selectedOrder.facebook.trim() === '') &&
+                         (!selectedOrder.instagram || selectedOrder.instagram.trim() === '') &&
+                         (!selectedOrder.twitter || selectedOrder.twitter.trim() === '') &&
+                         (!selectedOrder.linkedin || selectedOrder.linkedin.trim() === '') &&
+                         (!selectedOrder.youtube || selectedOrder.youtube.trim() === '') && (
+                          <p className="text-gray-500 text-sm">Sosyal medya hesabı belirtilmemiş</p>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -934,10 +1040,10 @@ Teslimat:
                         {selectedPages.map((pageId: string) => {
                           const page = PAGE_OPTIONS.find(p => p.id === pageId)
                           return page ? (
-                            <div key={pageId} className="p-3 bg-blue-50 rounded-lg border">
-                              <h5 className="font-medium text-blue-900">{page.name}</h5>
-                              <p className="text-xs text-blue-700 mt-1">{page.description}</p>
-                              <p className="text-sm font-bold text-blue-800 mt-2">₺{page.price}</p>
+                            <div key={pageId} className="p-3 bg-teal-50 rounded-lg border">
+                              <h5 className="font-medium text-teal-900">{page.name}</h5>
+                              <p className="text-xs text-teal-700 mt-1">{page.description}</p>
+                              <p className="text-sm font-bold text-teal-800 mt-2">₺{page.price}</p>
                             </div>
                           ) : null
                         })}
@@ -992,17 +1098,17 @@ Teslimat:
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                      <h4 className="font-semibold text-blue-900 mb-2">📋 Kişisel ve Mesleki Bilgiler</h4>
-                      <p className="text-blue-800 whitespace-pre-wrap leading-relaxed">
+                    <div className="bg-teal-50 p-4 rounded-lg border-l-4 border-teal-500">
+                      <h4 className="font-semibold text-teal-900 mb-2">📋 Kişisel ve Mesleki Bilgiler</h4>
+                      <p className="text-teal-800 whitespace-pre-wrap leading-relaxed">
                         {selectedOrder.specialRequests || selectedOrder.special_requests || selectedOrder.knowledge_text || selectedOrder.notes || 'Kullanıcı bu alanı doldurmamış.'}
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
-                        <h5 className="font-semibold text-blue-900 text-sm mb-1">💼 Deneyimleriniz</h5>
-                        <p className="text-blue-700 text-xs">
+                      <div className="bg-teal-50 p-3 rounded-lg border-l-4 border-teal-500">
+                        <h5 className="font-semibold text-teal-900 text-sm mb-1">💼 Deneyimleriniz</h5>
+                        <p className="text-teal-700 text-xs">
                           Eğitim durumu, çalıştığınız yerler, deneyim süresi
                         </p>
                       </div>
@@ -1153,7 +1259,7 @@ Teslimat:
                       <Button
                         variant="outline"
                         onClick={() => handleStatusChange(selectedOrder.id, 'in-progress')}
-                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                        className="text-teal-600 border-teal-200 hover:bg-teal-50"
                       >
                         İşleme Al
                       </Button>

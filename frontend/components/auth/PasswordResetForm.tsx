@@ -76,11 +76,11 @@ export function PasswordResetForm({ onSuccess, onError }: PasswordResetFormProps
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="mx-auto w-16 h-16 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full flex items-center justify-center mb-4"
+            className="mx-auto w-16 h-16 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-full flex items-center justify-center mb-4"
           >
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-teal-600" />
           </motion.div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
             E-posta Gönderildi
           </CardTitle>
           <p className="text-sm text-gray-600">
@@ -105,7 +105,7 @@ export function PasswordResetForm({ onSuccess, onError }: PasswordResetFormProps
               variant="outline"
               onClick={handleResendEmail}
               disabled={isLoading}
-              className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+              className="w-full border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300"
             >
               {isLoading ? (
                 <>
@@ -134,7 +134,7 @@ export function PasswordResetForm({ onSuccess, onError }: PasswordResetFormProps
   return (
     <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
           Şifremi Unuttum
         </CardTitle>
         <p className="text-sm text-gray-600 text-center">
@@ -185,7 +185,7 @@ export function PasswordResetForm({ onSuccess, onError }: PasswordResetFormProps
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
+              className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -216,9 +216,9 @@ export function PasswordResetForm({ onSuccess, onError }: PasswordResetFormProps
           </p>
         </div>
 
-        <div className="mt-6 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200/50">
-          <p className="text-xs font-medium mb-1 text-blue-800">Bilgi:</p>
-          <p className="text-xs text-blue-700">
+        <div className="mt-6 p-3 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200/50">
+          <p className="text-xs font-medium mb-1 text-teal-800">Bilgi:</p>
+          <p className="text-xs text-teal-700">
             Şifre sıfırlama linki 1 saat boyunca geçerlidir.
             E-posta gelmezse spam klasörünüzü kontrol edin.
           </p>

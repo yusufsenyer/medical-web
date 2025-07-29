@@ -1,103 +1,110 @@
 export const PRICING_PACKAGES = [
   {
     id: 'basic',
-    name: 'Temel Paket',
-    price: 1999,
-    originalPrice: 2499,
+    name: 'Başlangıç Klinik',
+    price: 2499,
+    originalPrice: 2999,
     popular: false,
     features: [
-      'Tek sayfalık web sitesi',
-      '5 bölüm (Hakkımda, Hizmetler, İletişim)',
-      'Mobil uyumlu tasarım',
+      'Tek sayfalık doktor web sitesi',
+      'Hakkımda, Tedavi Alanları, İletişim',
+      'Mobil uyumlu tıbbi tasarım',
       'SEO optimizasyonu',
+      'Sosyal medya entegrasyonu',
       '1 yıl domain ücretsiz',
-      '5 GB hosting',
+      '10 GB hosting',
       'Teslim süresi: 3-5 iş günü'
+    ],
+    color: 'from-teal-400 to-teal-600'
+  },
+  {
+    id: 'professional',
+    name: 'Profesyonel Klinik',
+    price: 4999,
+    originalPrice: 5999,
+    popular: true,
+    features: [
+      'Çok sayfalı klinik web sitesi (max 10 sayfa)',
+      'Online randevu sistemi',
+      'Hasta yorumları bölümü',
+      'Sağlık blog sistemi',
+      'Anlaşmalı kurumlar listesi',
+      'Google Analytics entegrasyonu',
+      'İletişim formu ve harita',
+      '1 yıl domain + hosting ücretsiz',
+      '25 GB hosting',
+      'Teslim süresi: 5-7 iş günü'
     ],
     color: 'from-blue-400 to-blue-600'
   },
   {
-    id: 'professional',
-    name: 'Profesyonel Paket',
-    price: 3999,
-    originalPrice: 4999,
-    popular: true,
-    features: [
-      'Çok sayfalı web sitesi (max 10 sayfa)',
-      'Blog sistemi',
-      'İletişim formu',
-      'Google Analytics entegrasyonu',
-      'Sosyal medya entegrasyonu',
-      'Randevu sistemi (doktorlar için)',
-      '10 GB hosting',
-      'Teslim süresi: 5-7 iş günü'
-    ],
-    color: 'from-purple-500 to-pink-600'
-  },
-  {
     id: 'premium',
-    name: 'Premium Paket',
-    price: 6999,
-    originalPrice: 8999,
+    name: 'Gelişmiş Klinik',
+    price: 7999,
+    originalPrice: 9999,
     popular: false,
     features: [
-      'Sınırsız sayfa',
-      'E-ticaret sistemi',
-      'Canlı sohbet',
-      'Advanced SEO',
-      'Özel tasarım',
-      'API entegrasyonları',
-      '25 GB hosting',
-      'Öncelikli destek',
+      'Sınırsız sayfa ve özellik',
+      'Gelişmiş randevu yönetimi',
+      'Hasta portal sistemi',
+      'Telemedicine entegrasyonu',
+      'Özel klinik tasarımı',
+      'Performans optimizasyonu',
+      'Canlı destek sistemi',
+      '2 yıl domain + hosting ücretsiz',
+      '50 GB hosting',
       'Teslim süresi: 7-10 iş günü'
     ],
-    color: 'from-emerald-400 to-cyan-600'
+    color: 'from-cyan-400 to-cyan-600'
   }
 ]
 
 export const ADDITIONAL_FEATURES = [
-  { id: 'logo', name: 'Logo Tasarımı', price: 500, category: 'design' },
-  { id: 'ssl', name: 'SSL Sertifikası', price: 300, category: 'security' },
-  { id: 'whatsapp', name: 'WhatsApp Business API', price: 800, category: 'communication' },
-  { id: 'google-ads', name: 'Google Ads Yönetimi', price: 1200, category: 'marketing' },
-  { id: 'email-marketing', name: 'E-mail Marketing', price: 600, category: 'marketing' },
+  { id: 'logo', name: 'Klinik Logo Tasarımı', price: 750, category: 'design' },
+  { id: 'ssl', name: 'SSL Sertifikası (Güvenlik)', price: 300, category: 'security' },
+  { id: 'whatsapp', name: 'WhatsApp Randevu Sistemi', price: 1200, category: 'communication' },
+  { id: 'seo', name: 'Tıbbi SEO Optimizasyonu', price: 1500, category: 'marketing' },
+  { id: 'patient-portal', name: 'Hasta Portal Sistemi', price: 2500, category: 'functionality' },
+  { id: 'telemedicine', name: 'Telemedicine Entegrasyonu', price: 3000, category: 'functionality' },
   { id: 'multilang', name: 'Çoklu Dil Desteği', price: 1000, category: 'functionality' },
-  { id: 'hosting', name: 'Özel Hosting', price: 2000, category: 'hosting' },
-  { id: 'maintenance', name: 'Maintenance (Yıllık)', price: 1800, category: 'support' }
+  { id: 'hosting', name: 'Tıbbi Hosting (HIPAA Uyumlu)', price: 2500, category: 'hosting' },
+  { id: 'maintenance', name: 'Yıllık Bakım ve Güncelleme', price: 2400, category: 'support' }
 ]
 
 export const COLOR_PALETTES = [
-  { id: 'blue', name: 'Professional Blue', colors: ['#0066CC', '#004499', '#3399FF'] },
-  { id: 'green', name: 'Medical Green', colors: ['#00CC66', '#008844', '#33FF88'] },
-  { id: 'purple', name: 'Creative Purple', colors: ['#8B5CF6', '#7C3AED', '#A78BFA'] },
-  { id: 'orange', name: 'Energy Orange', colors: ['#FF6B35', '#FF4500', '#FF8C42'] },
-  { id: 'teal', name: 'Modern Teal', colors: ['#14B8A6', '#0F766E', '#2DD4BF'] },
-  { id: 'indigo', name: 'Corporate Indigo', colors: ['#6366F1', '#4F46E5', '#818CF8'] }
+  { id: 'medical-blue', name: 'Tıbbi Mavi', colors: ['#0EA5E9', '#0284C7', '#38BDF8'] },
+  { id: 'medical-teal', name: 'Sağlık Yeşili', colors: ['#14B8A6', '#0D9488', '#2DD4BF'] },
+  { id: 'medical-green', name: 'Doğal Yeşil', colors: ['#22C55E', '#16A34A', '#4ADE80'] },
+  { id: 'medical-navy', name: 'Profesyonel Lacivert', colors: ['#1E40AF', '#1D4ED8', '#3B82F6'] },
+  { id: 'medical-purple', name: 'Terapi Moru', colors: ['#7C3AED', '#6D28D9', '#8B5CF6'] },
+  { id: 'medical-gray', name: 'Klinik Gri', colors: ['#6B7280', '#4B5563', '#9CA3AF'] },
+  { id: 'medical-red', name: 'Acil Kırmızı', colors: ['#DC2626', '#B91C1C', '#EF4444'] }
 ]
 
 export const PROFESSIONS = [
-  'Doktor', 'Diş Hekimi', 'Veteriner', 'Psikolog', 'Fizyoterapist',
-  'Avukat', 'Notar', 'Muhasebeci', 'Mimar', 'Mühendis',
-  'Kuaför', 'Berber', 'Estetisyen', 'Masaj Terapisti', 'Diyetisyen',
-  'Eğitim Danışmanı', 'Dil Kursu', 'Müzik Eğitmeni', 'Spor Antrenörü',
-  'Fotoğrafçı', 'Videograf', 'Grafik Tasarımcı', 'İç Mimar',
-  'Emlak Danışmanı', 'Sigortacı', 'Mali Müşavir', 'Diğer'
+  'Pratisyen Hekim', 'İç Hastalıkları', 'Kardiyoloji', 'Nöroloji', 'Ortopedi',
+  'Üroloji', 'Kadın Hastalıkları ve Doğum', 'Çocuk Hastalıkları', 'Göz Hastalıkları', 'Kulak Burun Boğaz',
+  'Cildiye', 'Psikiyatri', 'Anestezi', 'Radyoloji', 'Patoloji',
+  'Genel Cerrahi', 'Beyin Cerrahisi', 'Kalp Cerrahisi', 'Plastik Cerrahi', 'Göğüs Cerrahisi',
+  'Diş Hekimi', 'Ağız Diş Çene Cerrahisi', 'Ortodonti', 'Endodonti', 'Periodontoloji',
+  'Fizyoterapist', 'Diyetisyen', 'Psikolog', 'Ebe', 'Hemşire',
+  'Veteriner Hekim', 'Eczacı', 'Optisyen', 'Diğer'
 ]
 
 export const PAGE_OPTIONS = [
-  { id: 'about', name: 'Hakkımızda', description: 'Şirketiniz hakkında bilgi ve istatistikler', price: 200 },
-  { id: 'services', name: 'Hizmetler', description: 'Hizmet teklifinizin açıklaması', price: 300 },
-  { id: 'pricing', name: 'Fiyatlandırma', description: 'Dönüşüm sağlamak için tasarlandı', price: 250 },
-  { id: 'privacy', name: 'Gizlilik Politikası', description: 'Gizliliği nasıl koruduğunuzu açıklayın', price: 150 },
-  { id: 'news', name: 'Haberler', description: 'Bloglama ve alakalı içerik yayınlama', price: 400 },
-  { id: 'success', name: 'Başarı Öyküleri', description: 'En iyi örnek olay incelemelerinizi paylaşın', price: 350 },
-  { id: 'career', name: 'Kariyer', description: 'İş ilanları yayınlayın', price: 300 },
-  { id: 'store', name: 'Mağaza', description: 'E-Ticaret ile daha fazla satış yapın', price: 800 },
-  { id: 'events', name: 'Etkinlikler', description: 'Yerinde ve çevrimiçi etkinlikler yayınlayın', price: 400 },
-  { id: 'forum', name: 'Forum', description: 'Ziyaretçilere ihtiyaç duydukları bilgileri verin', price: 600 },
-  { id: 'chat', name: 'Canlı Sohbet', description: 'Çekişi artırmak için ziyaretçilerle sohbet edin', price: 500 },
-  { id: 'education', name: 'e-Eğitim', description: 'Bilgiyi herkese açık olarak veya ücret karşılığında paylaşın', price: 700 },
-  { id: 'locator', name: 'Mağaza Bulucu', description: 'Mağazalarınızın haritası ve girişi', price: 450 },
-  { id: 'appointment', name: 'Randevu', description: 'Self servis rezervasyon sistemi', price: 600 },
+  { id: 'about', name: 'Hakkımızda', description: 'Doktor bilgileri, eğitim ve deneyim', price: 200 },
+  { id: 'services', name: 'Tedavi Alanları', description: 'Sunduğunuz tıbbi hizmetler', price: 300 },
+  { id: 'appointment', name: 'Randevu Sistemi', description: 'Online randevu alma sistemi', price: 600 },
+  { id: 'contact', name: 'İletişim', description: 'Klinik bilgileri ve harita', price: 150 },
+  { id: 'gallery', name: 'Galeri', description: 'Klinik fotoğrafları ve tedavi örnekleri', price: 250 },
+  { id: 'testimonials', name: 'Hasta Yorumları', description: 'Hasta deneyimleri ve değerlendirmeler', price: 350 },
+  { id: 'blog', name: 'Sağlık Blog', description: 'Sağlık makaleleri ve bilgilendirme', price: 400 },
+  { id: 'faq', name: 'Sık Sorulan Sorular', description: 'Hastalardan gelen yaygın sorular', price: 200 },
+  { id: 'insurance', name: 'Anlaşmalı Kurumlar', description: 'SGK ve özel sigorta anlaşmaları', price: 180 },
+  { id: 'team', name: 'Ekibimiz', description: 'Klinik personeli ve uzman kadro', price: 300 },
+  { id: 'emergency', name: 'Acil Durum', description: 'Acil durum bilgileri ve iletişim', price: 150 },
+  { id: 'certificates', name: 'Sertifikalar', description: 'Mesleki sertifikalar ve ödüller', price: 200 },
+  { id: 'equipment', name: 'Teknoloji', description: 'Kullanılan tıbbi cihazlar ve teknoloji', price: 250 },
+  { id: 'privacy', name: 'Gizlilik Politikası', description: 'Hasta gizliliği ve KVKK uyumu', price: 150 },
   { id: 'helpdesk', name: 'Yardım Masası', description: 'Ticketing sistemi ile destek', price: 550 }
 ]
