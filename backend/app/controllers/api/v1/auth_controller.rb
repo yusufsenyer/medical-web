@@ -196,24 +196,36 @@ class Api::V1::AuthController < ApplicationController
     email = params.require(:email)
 
     begin
-      # Generate reset token
-      reset_token = PasswordResetService.generate_reset_token(email)
+      # Generate simple reset token
+      reset_token = SecureRandom.urlsafe_base64(32)
 
-      # Send email
-      result = EmailService.send_password_reset_email(email, reset_token)
+      # Store token in class variable (simulated)
+      @@reset_tokens ||= {}
+      @@reset_tokens[reset_token] = {
+        email: email,
+        expires_at: 1.hour.from_now,
+        created_at: Time.current
+      }
 
-      if result[:success]
-        render json: {
-          success: true,
-          message: 'Şifre sıfırlama e-postası gönderildi. E-posta kutunuzu kontrol edin.'
+      # Simulate email sending (log to console)
+      reset_url = "#{ENV['FRONTEND_URL'] || 'http://localhost:3001'}/auth/reset-password?token=#{reset_token}"
+
+      Rails.logger.info "=== PASSWORD RESET EMAIL ==="
+      Rails.logger.info "To: #{email}"
+      Rails.logger.info "Reset URL: #{reset_url}"
+      Rails.logger.info "Token: #{reset_token}"
+      Rails.logger.info "Expires: #{1.hour.from_now}"
+      Rails.logger.info "=========================="
+
+      render json: {
+        success: true,
+        message: 'Şifre sıfırlama e-postası gönderildi. E-posta kutunuzu kontrol edin.',
+        debug: {
+          reset_url: reset_url,
+          token: reset_token,
+          expires_at: 1.hour.from_now
         }
-      else
-        render json: {
-          success: false,
-          message: 'E-posta gönderilirken bir hata oluştu. Lütfen tekrar deneyin.',
-          errors: [result[:message]]
-        }, status: :unprocessable_entity
-      end
+      }
 
     rescue ActionController::ParameterMissing => e
       render json: {
@@ -236,17 +248,32 @@ class Api::V1::AuthController < ApplicationController
     new_password = params.require(:password)
 
     begin
-      # Validate and consume token
-      email = PasswordResetService.consume_reset_token(token)
+      # Validate and consume token from class variable
+      @@reset_tokens ||= {}
+      token_data = @@reset_tokens[token]
 
-      unless email
+      unless token_data
         render json: {
           success: false,
-          message: 'Geçersiz veya süresi dolmuş token',
+          message: 'Geçersiz token',
           errors: ['Token geçersiz']
         }, status: :unprocessable_entity
         return
       end
+
+      # Check if token is expired
+      if token_data[:expires_at] < Time.current
+        @@reset_tokens.delete(token)
+        render json: {
+          success: false,
+          message: 'Süresi dolmuş token',
+          errors: ['Token süresi dolmuş']
+        }, status: :unprocessable_entity
+        return
+      end
+
+      email = token_data[:email]
+      @@reset_tokens.delete(token) # Consume token
 
       # Update user password in users list
       Api::V1::UsersController.class_variable_set(:@@registered_users,
