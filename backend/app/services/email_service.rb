@@ -3,24 +3,32 @@ include SendGrid
 
 class EmailService
   def self.send_password_reset_email(email, reset_token)
-    from = Email.new(email: ENV['SENDGRID_FROM_EMAIL'], name: ENV['SENDGRID_FROM_NAME'])
-    to = Email.new(email: email)
-    subject = 'Şifre Sıfırlama Talebi'
-    
-    reset_url = "#{ENV['FRONTEND_URL']}/auth/reset-password?token=#{reset_token}"
-    
-    content = Content.new(
-      type: 'text/html',
-      value: generate_password_reset_html(reset_url)
-    )
-    
-    mail = Mail.new(from, subject, to, content)
-    
+    reset_url = "http://localhost:3001/auth/reset-password?token=#{reset_token}"
+
+    data = {
+      personalizations: [
+        {
+          to: [{ email: email }],
+          subject: 'Şifre Sıfırlama Talebi'
+        }
+      ],
+      from: {
+        email: ENV['SENDGRID_FROM_EMAIL'] || 'yusufsenyer@gmail.com',
+        name: 'Website Builder'
+      },
+      content: [
+        {
+          type: 'text/html',
+          value: generate_password_reset_html(reset_url)
+        }
+      ]
+    }
+
     sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-    
+
     begin
-      response = sg.client.mail._('send').post(request_body: mail.to_json)
-      
+      response = sg.client.mail._('send').post(request_body: data.to_json)
+
       if response.status_code.to_i >= 200 && response.status_code.to_i < 300
         Rails.logger.info "Password reset email sent successfully to #{email}"
         return { success: true, message: 'Email sent successfully' }

@@ -207,9 +207,32 @@ class Api::V1::AuthController < ApplicationController
         created_at: Time.current
       }
 
-      # Simulate email sending (log to console)
+      # Try to send real email via SendGrid, fallback to console
       reset_url = "#{ENV['FRONTEND_URL'] || 'http://localhost:3001'}/auth/reset-password?token=#{reset_token}"
 
+      # Check if SendGrid is configured
+      if ENV['SENDGRID_API_KEY'].present? && ENV['SENDGRID_FROM_EMAIL'].present?
+        begin
+          result = EmailService.send_password_reset_email(email, reset_token)
+
+          if result[:success]
+            Rails.logger.info "Password reset email sent successfully to #{email}"
+            render json: {
+              success: true,
+              message: 'Şifre sıfırlama e-postası gönderildi. E-posta kutunuzu kontrol edin.'
+            }
+            return
+          else
+            Rails.logger.error "Failed to send email: #{result[:message]}"
+            # Continue to fallback
+          end
+        rescue => email_error
+          Rails.logger.error "Email service error: #{email_error.message}"
+          # Continue to fallback
+        end
+      end
+
+      # Fallback: Log to console (for development)
       Rails.logger.info "=== PASSWORD RESET EMAIL ==="
       Rails.logger.info "To: #{email}"
       Rails.logger.info "Reset URL: #{reset_url}"
@@ -223,7 +246,8 @@ class Api::V1::AuthController < ApplicationController
         debug: {
           reset_url: reset_url,
           token: reset_token,
-          expires_at: 1.hour.from_now
+          expires_at: 1.hour.from_now,
+          note: 'SendGrid not configured, using console fallback'
         }
       }
 
