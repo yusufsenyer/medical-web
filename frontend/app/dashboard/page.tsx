@@ -40,7 +40,7 @@ export default function CustomerDashboard() {
     setMounted(true)
   }, [])
 
-  // Customer access control
+  // Customer access control and first login redirect
   useEffect(() => {
     if (!mounted) return
 
@@ -51,6 +51,14 @@ export default function CustomerDashboard() {
 
     if (user && user.role === 'admin') {
       router.push('/admin') // Redirect admin to admin panel
+      return
+    }
+
+    // Check if this is first login and redirect to orders
+    const isFirstLogin = localStorage.getItem('is-first-login')
+    if (isFirstLogin === 'true' && user?.role !== 'admin') {
+      localStorage.removeItem('is-first-login') // Clear flag
+      router.push('/order')
       return
     }
   }, [user, isAuthenticated, router, mounted])

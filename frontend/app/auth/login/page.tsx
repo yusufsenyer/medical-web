@@ -13,9 +13,9 @@ export default function LoginPage() {
   const handleLoginSuccess = (data: any) => {
     console.log('Login successful:', data)
 
-    // Get return URL from query params or default to admin
+    // Get return URL from query params or default to dashboard
     const urlParams = new URLSearchParams(window.location.search)
-    const returnUrl = urlParams.get('returnUrl') || '/admin'
+    const returnUrl = urlParams.get('returnUrl') || '/dashboard'
 
     // Redirect to intended page
     router.push(returnUrl)

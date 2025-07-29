@@ -20,9 +20,9 @@ export default function SignUpPage() {
     setUserEmail(data.email)
     setIsSuccess(true)
 
-    // Redirect to admin after successful signup
+    // Redirect to dashboard after successful signup
     setTimeout(() => {
-      router.push('/admin')
+      router.push('/dashboard')
     }, 2000)
   }
 

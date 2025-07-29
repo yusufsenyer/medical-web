@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Globe, User, LogOut } from 'lucide-react'
@@ -17,7 +18,13 @@ const navItems = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    router.push('/auth/login')
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -72,7 +79,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-gray-600 hover:text-gray-800 hover:bg-gray-100"
               >
                 <LogOut className="h-4 w-4 mr-1" />
@@ -150,7 +157,7 @@ export function Header() {
                   )}
                   <Button
                     variant="ghost"
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100"
                   >
                     <LogOut className="h-4 w-4 mr-2" />

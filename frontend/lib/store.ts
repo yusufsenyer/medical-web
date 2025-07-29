@@ -499,13 +499,16 @@ export const useStore = create<StoreState>((set, get) => ({
         const user: User = {
           id: data.data.user.id,
           email: data.data.user.email,
-          firstName: '',
-          lastName: '',
-          fullName: data.data.user.email.split('@')[0],
+          firstName: data.data.user.firstName || '',
+          lastName: data.data.user.lastName || '',
+          fullName: data.data.user.fullName || `${data.data.user.firstName} ${data.data.user.lastName}`,
           role: data.data.user.role,
+          phone: data.data.user.phone || '',
+          company: data.data.user.company || '',
+          bio: data.data.user.bio || '',
           isEmailVerified: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: data.data.user.createdAt || new Date().toISOString(),
+          updatedAt: data.data.user.updatedAt || new Date().toISOString()
         }
 
         const token = data.data.token
@@ -513,6 +516,13 @@ export const useStore = create<StoreState>((set, get) => ({
         // Store in localStorage
         localStorage.setItem('auth-token', token)
         localStorage.setItem('user-data', JSON.stringify(user))
+
+        // Check if this is first login (no previous login data)
+        const isFirstLogin = !localStorage.getItem('has-logged-in-before')
+        if (isFirstLogin && user.role !== 'admin') {
+          localStorage.setItem('is-first-login', 'true')
+        }
+        localStorage.setItem('has-logged-in-before', 'true')
 
         set((state) => ({
           auth: {
@@ -561,13 +571,16 @@ export const useStore = create<StoreState>((set, get) => ({
         const user: User = {
           id: data.data.user.id,
           email: data.data.user.email,
-          firstName: '',
-          lastName: '',
-          fullName: data.data.user.email.split('@')[0],
+          firstName: data.data.user.firstName || '',
+          lastName: data.data.user.lastName || '',
+          fullName: data.data.user.fullName || `${data.data.user.firstName} ${data.data.user.lastName}`,
           role: data.data.user.role,
+          phone: data.data.user.phone || '',
+          company: data.data.user.company || '',
+          bio: data.data.user.bio || '',
           isEmailVerified: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: data.data.user.createdAt || new Date().toISOString(),
+          updatedAt: data.data.user.updatedAt || new Date().toISOString()
         }
 
         const token = data.data?.token || `fake-token-${user.id}`
@@ -575,6 +588,7 @@ export const useStore = create<StoreState>((set, get) => ({
         // Store in localStorage
         localStorage.setItem('auth-token', token)
         localStorage.setItem('user-data', JSON.stringify(user))
+        localStorage.setItem('is-first-login', 'true') // Mark as first login
 
         set((state) => ({
           auth: {

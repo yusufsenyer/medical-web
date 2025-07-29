@@ -36,7 +36,7 @@ export function AuthGuard({
     }
 
     if (requireGuest && isAuthenticated) {
-      const dashboardUrl = redirectTo || '/admin'
+      const dashboardUrl = redirectTo || '/dashboard'
       router.push(dashboardUrl)
       return
     }
