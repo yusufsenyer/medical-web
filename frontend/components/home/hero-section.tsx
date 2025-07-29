@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -201,7 +202,7 @@ export function HeroSection() {
               >
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300 h-full">
                   <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon className="h-8 w-8 text-white" />
+                    {React.createElement(feature.icon, { className: "h-8 w-8 text-white" })}
                   </div>
 
                   <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors">
@@ -235,7 +236,7 @@ export function HeroSection() {
                 transition={{ delay: 1.3 + index * 0.1, duration: 0.5 }}
                 className="flex items-center space-x-2 hover:text-white transition-colors cursor-pointer"
               >
-                <item.icon className="h-5 w-5 text-blue-400" />
+                {React.createElement(item.icon, { className: "h-5 w-5 text-blue-400" })}
                 <span className="font-medium">{item.text}</span>
               </motion.div>
             ))}

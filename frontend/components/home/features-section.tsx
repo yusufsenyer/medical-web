@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Zap, Palette, Search, Shield, Clock, Users, Smartphone, Globe, Code, Headphones, ArrowRight, CheckCircle, Sparkles, Brain, Layers, Rocket } from 'lucide-react'
 import Link from 'next/link'
@@ -134,7 +135,7 @@ export function FeaturesSection() {
                 <div className="relative z-10">
                   {/* Icon */}
                   <div className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 shadow-2xl`}>
-                    <feature.icon className="h-10 w-10 text-white" />
+                    {React.createElement(feature.icon, { className: "h-10 w-10 text-white" })}
                   </div>
 
                   {/* Content */}
