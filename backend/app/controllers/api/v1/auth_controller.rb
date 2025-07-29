@@ -191,4 +191,99 @@ class Api::V1::AuthController < ApplicationController
       }, status: :unprocessable_entity
     end
   end
+
+  def forgot_password
+    email = params.require(:email)
+
+    begin
+      # Generate reset token
+      reset_token = PasswordResetService.generate_reset_token(email)
+
+      # Send email
+      result = EmailService.send_password_reset_email(email, reset_token)
+
+      if result[:success]
+        render json: {
+          success: true,
+          message: 'Şifre sıfırlama e-postası gönderildi. E-posta kutunuzu kontrol edin.'
+        }
+      else
+        render json: {
+          success: false,
+          message: 'E-posta gönderilirken bir hata oluştu. Lütfen tekrar deneyin.',
+          errors: [result[:message]]
+        }, status: :unprocessable_entity
+      end
+
+    rescue ActionController::ParameterMissing => e
+      render json: {
+        success: false,
+        message: 'E-posta adresi gereklidir',
+        errors: [e.message]
+      }, status: :bad_request
+    rescue => e
+      Rails.logger.error "Forgot password error: #{e.message}"
+      render json: {
+        success: false,
+        message: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+        errors: [e.message]
+      }, status: :internal_server_error
+    end
+  end
+
+  def reset_password
+    token = params.require(:token)
+    new_password = params.require(:password)
+
+    begin
+      # Validate and consume token
+      email = PasswordResetService.consume_reset_token(token)
+
+      unless email
+        render json: {
+          success: false,
+          message: 'Geçersiz veya süresi dolmuş token',
+          errors: ['Token geçersiz']
+        }, status: :unprocessable_entity
+        return
+      end
+
+      # Update user password in users list
+      Api::V1::UsersController.class_variable_set(:@@registered_users,
+        Api::V1::UsersController.class_variable_get(:@@registered_users) || [])
+      users = Api::V1::UsersController.class_variable_get(:@@registered_users)
+
+      user_index = users.find_index { |u| u[:email] == email }
+
+      if user_index
+        users[user_index][:password] = new_password # In production, hash this!
+        users[user_index][:updatedAt] = Time.current.iso8601
+
+        render json: {
+          success: true,
+          message: 'Şifreniz başarıyla güncellendi. Yeni şifrenizle giriş yapabilirsiniz.'
+        }
+      else
+        render json: {
+          success: false,
+          message: 'Kullanıcı bulunamadı',
+          errors: ['User not found']
+        }, status: :not_found
+      end
+
+    rescue ActionController::ParameterMissing => e
+      render json: {
+        success: false,
+        message: 'Token ve yeni şifre gereklidir',
+        errors: [e.message]
+      }, status: :bad_request
+    rescue => e
+      Rails.logger.error "Reset password error: #{e.message}"
+      render json: {
+        success: false,
+        message: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+        errors: [e.message]
+      }, status: :internal_server_error
+    end
+  end
 end

@@ -20,6 +20,12 @@ gem "jbuilder"
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
 
+# SendGrid for email sending
+gem "sendgrid-ruby"
+
+# Environment variables
+gem "dotenv-rails"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 
