@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Check, ArrowRight, Star, Crown, Zap, Sparkles, Rocket, Diamond, Infinity } from 'lucide-react'
+import { Check, ArrowRight, Star, Crown, Zap, Sparkles, Rocket, Gem, Infinity } from 'lucide-react'
 import { useRef } from 'react'
 
 const pricingPlans = [
@@ -66,7 +66,7 @@ const pricingPlans = [
       '7/24 premium destek',
       'Özel hosting altyapısı'
     ],
-    icon: Diamond,
+    icon: Gem,
     color: 'from-orange-500 to-red-500',
     bgGradient: 'from-orange-900/20 to-red-900/20',
     popular: false
