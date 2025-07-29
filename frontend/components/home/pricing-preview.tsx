@@ -23,7 +23,7 @@ const pricingPlans = [
       'Hızlı SSD hosting',
       'E-posta desteği'
     ],
-    icon: Zap,
+
     color: 'from-blue-500 to-cyan-500',
     bgGradient: 'from-blue-900/20 to-cyan-900/20',
     popular: false
@@ -44,7 +44,7 @@ const pricingPlans = [
       'Öncelikli 24/7 destek',
       'E-ticaret hazırlığı'
     ],
-    icon: Crown,
+
     color: 'from-purple-500 to-pink-500',
     bgGradient: 'from-purple-900/20 to-pink-900/20',
     popular: true
@@ -66,7 +66,7 @@ const pricingPlans = [
       '7/24 premium destek',
       'Özel hosting altyapısı'
     ],
-    icon: Gem,
+
     color: 'from-orange-500 to-red-500',
     bgGradient: 'from-orange-900/20 to-red-900/20',
     popular: false
@@ -198,7 +198,9 @@ export function PricingPreview() {
                   {/* Header */}
                   <div className="text-center mb-8">
                     <div className={`w-20 h-20 bg-gradient-to-r ${plan.color} rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-2xl`}>
-                      {React.createElement(plan.icon, { className: "h-10 w-10 text-white" })}
+                      {plan.name === 'Starter' && <Zap className="h-10 w-10 text-white" />}
+                      {plan.name === 'Professional' && <Crown className="h-10 w-10 text-white" />}
+                      {plan.name === 'Enterprise' && <Gem className="h-10 w-10 text-white" />}
                     </div>
 
                     <h3 className="text-2xl lg:text-3xl font-black text-white mb-3 group-hover:text-blue-300 transition-colors">
