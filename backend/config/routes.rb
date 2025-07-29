@@ -9,8 +9,6 @@ Rails.application.routes.draw do
       post 'auth/login', to: 'auth#login'
       get 'auth/profile', to: 'auth#profile'
       put 'auth/update-profile', to: 'auth#update_profile'
-      post 'auth/forgot-password', to: 'auth#forgot_password'
-      post 'auth/reset-password', to: 'auth#reset_password'
 
       # Orders routes
       resources :orders, only: [:index, :show, :create, :update, :destroy]
