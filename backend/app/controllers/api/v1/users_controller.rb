@@ -1,135 +1,186 @@
 class Api::V1::UsersController < ApplicationController
-  # Class variable to store users in memory (in a real app, use database)
-  @@registered_users = []
   def index
-    # Get all registered users from memory (in a real app, this would be from database)
-    @@registered_users ||= []
-    users = @@registered_users
+    begin
+      # Get all users from database
+      users_query = User.all
 
-    # Apply search filter if provided
-    search = params[:search]
-    if search.present?
-      users = users.select do |user|
-        user[:fullName].downcase.include?(search.downcase) ||
-        user[:email].downcase.include?(search.downcase)
+      # Apply search filter if provided
+      search = params[:search]
+      if search.present?
+        users_query = users_query.where(
+          "first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?",
+          "%#{search}%", "%#{search}%", "%#{search}%"
+        )
       end
-    end
 
-    # Apply pagination
-    page = (params[:page] || 1).to_i
-    limit = (params[:limit] || 10).to_i
-    start_index = (page - 1) * limit
-    end_index = start_index + limit - 1
+      # Apply pagination
+      page = (params[:page] || 1).to_i
+      limit = (params[:limit] || 10).to_i
 
-    paginated_users = users[start_index..end_index] || []
+      users = users_query.limit(limit).offset((page - 1) * limit)
+      total_count = users_query.count
 
-    render json: {
-      success: true,
-      data: paginated_users,
-      pagination: {
-        page: page,
-        limit: limit,
-        total: users.length,
-        totalPages: (users.length.to_f / limit).ceil
+      # Format users data
+      formatted_users = users.map do |user|
+        {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: user.full_name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          company: user.company,
+          bio: user.bio,
+          isActive: user.is_active,
+          createdAt: user.created_at.iso8601,
+          lastLogin: user.last_login&.iso8601
+        }
+      end
+
+      render json: {
+        success: true,
+        data: formatted_users,
+        pagination: {
+          page: page,
+          limit: limit,
+          total: total_count,
+          totalPages: (total_count.to_f / limit).ceil
+        }
       }
-    }
+    rescue => e
+      render json: {
+        success: false,
+        message: 'Kullanıcılar alınırken hata oluştu',
+        errors: [e.message]
+      }, status: :internal_server_error
+    end
   end
 
   def show
-    user_id = params[:id].to_i
-    
-    # Simulate getting a specific user
-    user = {
-      id: user_id,
-      firstName: "John",
-      lastName: "Doe",
-      fullName: "John Doe",
-      email: "john@example.com",
-      phone: "+1234567890",
-      company: "Tech Corp",
-      bio: "Software developer with 5 years of experience",
-      role: "user",
-      isActive: true,
-      createdAt: "2025-01-10T08:30:00Z",
-      updatedAt: "2025-01-28T10:15:00Z",
-      lastLogin: "2025-01-28T10:15:00Z",
-      orderCount: 3,
-      totalSpent: 4500
-    }
-    
-    render json: {
-      success: true,
-      data: user
-    }
+    begin
+      user = User.find(params[:id])
+
+      # Get user's order statistics (when orders are implemented)
+      order_count = 0 # Order.where(user_id: user.id).count
+      total_spent = 0 # Order.where(user_id: user.id).sum(:total_amount)
+
+      render json: {
+        success: true,
+        data: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: user.full_name,
+          email: user.email,
+          phone: user.phone,
+          company: user.company,
+          bio: user.bio,
+          role: user.role,
+          isActive: user.is_active,
+          createdAt: user.created_at.iso8601,
+          updatedAt: user.updated_at.iso8601,
+          lastLogin: user.last_login&.iso8601,
+          orderCount: order_count,
+          totalSpent: total_spent
+        }
+      }
+    rescue ActiveRecord::RecordNotFound
+      render json: {
+        success: false,
+        message: 'Kullanıcı bulunamadı',
+        errors: ['User not found']
+      }, status: :not_found
+    rescue => e
+      render json: {
+        success: false,
+        message: 'Kullanıcı bilgileri alınırken hata oluştu',
+        errors: [e.message]
+      }, status: :internal_server_error
+    end
   end
 
   def update_status
-    user_id = params[:id].to_i
-    status_params = params.require(:user).permit(:isActive)
-    
-    # Simulate user status update
-    updated_user = {
-      id: user_id,
-      firstName: "John",
-      lastName: "Doe",
-      fullName: "John Doe",
-      email: "john@example.com",
-      role: "user",
-      isActive: status_params[:isActive],
-      updatedAt: Time.current.iso8601
-    }
-    
-    render json: {
-      success: true,
-      message: 'User status updated successfully',
-      data: updated_user
-    }
-  rescue ActionController::ParameterMissing => e
-    render json: {
-      success: false,
-      message: 'Missing required parameters',
-      errors: [e.message]
-    }, status: :bad_request
-  rescue => e
-    render json: {
-      success: false,
-      message: 'User status update failed',
-      errors: [e.message]
-    }, status: :unprocessable_entity
+    begin
+      user = User.find(params[:id])
+      status_params = params.require(:user).permit(:isActive)
+
+      user.update!(is_active: status_params[:isActive])
+
+      render json: {
+        success: true,
+        message: 'Kullanıcı durumu başarıyla güncellendi',
+        data: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: user.full_name,
+          email: user.email,
+          role: user.role,
+          isActive: user.is_active,
+          updatedAt: user.updated_at.iso8601
+        }
+      }
+    rescue ActiveRecord::RecordNotFound
+      render json: {
+        success: false,
+        message: 'Kullanıcı bulunamadı',
+        errors: ['User not found']
+      }, status: :not_found
+    rescue ActionController::ParameterMissing => e
+      render json: {
+        success: false,
+        message: 'Gerekli parametreler eksik',
+        errors: [e.message]
+      }, status: :bad_request
+    rescue => e
+      render json: {
+        success: false,
+        message: 'Kullanıcı durumu güncellenirken hata oluştu',
+        errors: [e.message]
+      }, status: :internal_server_error
+    end
   end
 
   def update_role
-    user_id = params[:id].to_i
-    role_params = params.require(:user).permit(:role)
-    
-    # Simulate user role update
-    updated_user = {
-      id: user_id,
-      firstName: "John",
-      lastName: "Doe",
-      fullName: "John Doe",
-      email: "john@example.com",
-      role: role_params[:role],
-      isActive: true,
-      updatedAt: Time.current.iso8601
-    }
-    
-    render json: {
-      success: true,
-      message: 'User role updated successfully',
-      data: updated_user
-    }
-  rescue ActionController::ParameterMissing => e
-    render json: {
-      success: false,
-      message: 'Missing required parameters',
-      errors: [e.message]
-    }, status: :bad_request
-  rescue => e
-    render json: {
-      success: false,
-      message: 'User role update failed',
-      errors: [e.message]
-    }, status: :unprocessable_entity
+    begin
+      user = User.find(params[:id])
+      role_params = params.require(:user).permit(:role)
+
+      user.update!(role: role_params[:role])
+
+      render json: {
+        success: true,
+        message: 'Kullanıcı rolü başarıyla güncellendi',
+        data: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: user.full_name,
+          email: user.email,
+          role: user.role,
+          isActive: user.is_active,
+          updatedAt: user.updated_at.iso8601
+        }
+      }
+    rescue ActiveRecord::RecordNotFound
+      render json: {
+        success: false,
+        message: 'Kullanıcı bulunamadı',
+        errors: ['User not found']
+      }, status: :not_found
+    rescue ActionController::ParameterMissing => e
+      render json: {
+        success: false,
+        message: 'Gerekli parametreler eksik',
+        errors: [e.message]
+      }, status: :bad_request
+    rescue => e
+      render json: {
+        success: false,
+        message: 'Kullanıcı rolü güncellenirken hata oluştu',
+        errors: [e.message]
+      }, status: :internal_server_error
+    end
   end
 end

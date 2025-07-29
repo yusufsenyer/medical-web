@@ -1,37 +1,28 @@
 class Api::V1::AuthController < ApplicationController
-
-  private
-
-  # Simple authentication helper (in production, use proper JWT)
-  def current_user
-    # For now, just find user by email from params or headers
-    email = params[:email] || request.headers['X-User-Email']
-    User.find_by(email: email) if email
-  end
-
-  public
-  # Access to users list from UsersController
-  def self.add_user_to_list(user_data)
-    Api::V1::UsersController.class_variable_set(:@@registered_users,
-      Api::V1::UsersController.class_variable_get(:@@registered_users) || [])
-    users = Api::V1::UsersController.class_variable_get(:@@registered_users)
-
-    # Check if user already exists
-    existing_user = users.find { |u| u[:email] == user_data[:email] }
-    unless existing_user
-      users << user_data
+  # Create admin user if not exists
+  def self.ensure_admin_user
+    admin_email = 'admin123@gmail.com'
+    unless User.exists?(email: admin_email)
+      User.create!(
+        first_name: 'Admin',
+        last_name: 'User',
+        email: admin_email,
+        password: 'admin123',
+        role: 'admin',
+        is_active: true
+      )
     end
   end
   def register
     user_params = params.require(:user).permit(:firstName, :lastName, :email, :password)
 
     begin
-      # Create new user with database
+      # Create user with database
       user = User.new(
         first_name: user_params[:firstName],
         last_name: user_params[:lastName],
         email: user_params[:email],
-        password: user_params[:password], # In production, hash this!
+        password: user_params[:password],
         role: 'user',
         is_active: true,
         last_login: Time.current
@@ -43,25 +34,45 @@ class Api::V1::AuthController < ApplicationController
 
         render json: {
           success: true,
-          message: 'User registered successfully',
+          message: 'Kullanıcı başarıyla kaydedildi',
           data: {
-            user: user.as_json,
+            user: {
+              id: user.id,
+              firstName: user.first_name,
+              lastName: user.last_name,
+              fullName: user.full_name,
+              email: user.email,
+              role: user.role,
+              phone: user.phone,
+              company: user.company,
+              bio: user.bio,
+              isActive: user.is_active,
+              createdAt: user.created_at.iso8601,
+              lastLogin: user.last_login&.iso8601
+            },
             token: token
           }
         }, status: :created
       else
         render json: {
           success: false,
-          message: 'Kayıt sırasında bir hata oluştu',
+          message: 'Kayıt sırasında hata oluştu',
           errors: user.errors.full_messages
         }, status: :unprocessable_entity
       end
+
+    rescue ActiveRecord::RecordNotUnique
+      render json: {
+        success: false,
+        message: 'Bu e-posta adresi zaten kullanılıyor',
+        errors: ['Email already exists']
+      }, status: :unprocessable_entity
     rescue => e
       render json: {
         success: false,
         message: 'Kayıt sırasında bir hata oluştu',
         errors: [e.message]
-      }, status: :unprocessable_entity
+      }, status: :internal_server_error
     end
   rescue ActionController::ParameterMissing => e
     render json: {
@@ -81,10 +92,13 @@ class Api::V1::AuthController < ApplicationController
     user_params = params.require(:user).permit(:email, :password)
 
     begin
-      # Find user in database
-      user = User.find_by(email: user_params[:email].downcase)
+      # Ensure admin user exists
+      self.class.ensure_admin_user
 
-      if user && user.password == user_params[:password] # In production, use bcrypt
+      # Find user by email
+      user = User.find_by(email: user_params[:email])
+
+      if user && user.password == user_params[:password] && user.is_active
         # Update last login
         user.update_last_login!
 
@@ -93,19 +107,33 @@ class Api::V1::AuthController < ApplicationController
 
         render json: {
           success: true,
-          message: 'Login successful',
+          message: 'Giriş başarılı',
           data: {
-            user: user.as_json,
+            user: {
+              id: user.id,
+              firstName: user.first_name,
+              lastName: user.last_name,
+              fullName: user.full_name,
+              email: user.email,
+              role: user.role,
+              phone: user.phone,
+              company: user.company,
+              bio: user.bio,
+              isActive: user.is_active,
+              createdAt: user.created_at.iso8601,
+              lastLogin: user.last_login&.iso8601
+            },
             token: token
           }
         }
       else
         render json: {
           success: false,
-          message: 'Geçersiz email veya şifre',
+          message: 'Geçersiz e-posta veya şifre',
           errors: ['Invalid credentials']
         }, status: :unauthorized
       end
+
     rescue => e
       render json: {
         success: false,
@@ -116,23 +144,35 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def profile
-    begin
-      # For now, get user by email from params (in production, use JWT)
-      email = params[:email]
-      user = User.find_by(email: email) if email
+    # In a real app, get user_id from JWT token
+    user_id = params[:user_id] || 1 # Fallback for testing
 
-      if user
-        render json: {
-          success: true,
-          data: user.as_json
+    begin
+      user = User.find(user_id)
+
+      render json: {
+        success: true,
+        data: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: user.full_name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          company: user.company,
+          bio: user.bio,
+          isActive: user.is_active,
+          createdAt: user.created_at.iso8601,
+          lastLogin: user.last_login&.iso8601
         }
-      else
-        render json: {
-          success: false,
-          message: 'Kullanıcı bulunamadı',
-          errors: ['User not found']
-        }, status: :not_found
-      end
+      }
+    rescue ActiveRecord::RecordNotFound
+      render json: {
+        success: false,
+        message: 'Kullanıcı bulunamadı',
+        errors: ['User not found']
+      }, status: :not_found
     rescue => e
       render json: {
         success: false,
@@ -146,7 +186,6 @@ class Api::V1::AuthController < ApplicationController
     user_params = params.require(:user).permit(:id, :firstName, :lastName, :email, :phone, :company, :bio)
 
     begin
-      # Find user in database
       user = User.find(user_params[:id])
 
       # Update user attributes
@@ -163,7 +202,21 @@ class Api::V1::AuthController < ApplicationController
         success: true,
         message: 'Profil başarıyla güncellendi',
         data: {
-          user: user.as_json
+          user: {
+            id: user.id,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            fullName: user.full_name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone,
+            company: user.company,
+            bio: user.bio,
+            isActive: user.is_active,
+            createdAt: user.created_at.iso8601,
+            lastLogin: user.last_login&.iso8601,
+            updatedAt: user.updated_at.iso8601
+          }
         }
       }
 
@@ -184,7 +237,7 @@ class Api::V1::AuthController < ApplicationController
         success: false,
         message: 'Profil güncellenirken hata oluştu',
         errors: [e.message]
-      }, status: :unprocessable_entity
+      }, status: :internal_server_error
     end
   end
 end
