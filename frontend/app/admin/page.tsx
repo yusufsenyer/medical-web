@@ -16,6 +16,7 @@ import {
   Filter,
   Download,
   Eye,
+  EyeOff,
   Clock,
   CheckCircle,
   Calendar,
@@ -28,7 +29,8 @@ import {
   ArrowLeft,
   Loader2,
   Settings,
-  ExternalLink
+  ExternalLink,
+  Trash
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -59,6 +61,7 @@ export default function AdminPage() {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [refreshInterval, setRefreshInterval] = useState(30) // seconds
   const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [showPassword, setShowPassword] = useState<{ [key: string]: boolean }>({})
 
   // Mount effect
   useEffect(() => {
@@ -325,14 +328,14 @@ Teslimat:
 
 
   const filteredOrders = (orders || []).filter(order => {
-    const customerName = order.customerName || `${order.customer_name || ''} ${order.customer_surname || ''}`.trim()
-    const customerEmail = order.email || order.customerEmail || order.customer_email || ''
-    const websiteType = order.websiteType || order.website_type || ''
+    const customerName = order.customer_name || order.customerName || `${order.customer_surname || order.customerSurname || ''}`.trim();
+    const customerEmail = order.customer_email || order.customerEmail || '';
+    const websiteType = order.website_type || order.websiteType || '';
 
     const matchesSearch =
-      websiteType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (websiteType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (customerEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (String(order.id) || '').toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus
@@ -525,17 +528,16 @@ Teslimat:
                     <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <h4 className="font-semibold">
-                          {order.siteName || order.website_name || `${getCustomerName(order)} Web Sitesi`}
+                          {order.website_name || order.siteName || `${getCustomerName(order)} Web Sitesi`}
                         </h4>
-                        <p className="text-sm text-gray-600">
-                          {getCustomerName(order)}
-                        </p>
+                        <Badge className={getStatusColor(order.status || '')}>
+                          {getStatusText(order.status || '')}
+                        </Badge>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <Badge className={getStatusColor(order.status)}>
-                          {getStatusText(order.status)}
-                        </Badge>
-                        <span className="font-semibold">₺{(order.total_price || order.totalPrice || 0).toLocaleString('tr-TR')}</span>
+                        <span className="font-semibold">₺{(order.total_price || 0).toLocaleString('tr-TR')}</span>
+                        <span className="text-sm text-gray-600">{new Date(order.created_at || Date.now()).toLocaleDateString('tr-TR')}</span>
+                        <p className="font-medium">{user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email}</p>
                       </div>
                     </div>
                   ))}
@@ -615,7 +617,7 @@ Teslimat:
                           <td className="p-4">
                             <div>
                               <p className="font-semibold">
-                                {order.siteName || order.website_name || `${getCustomerName(order)} Web Sitesi`}
+                                {order.website_name || order.siteName || `${getCustomerName(order)} Web Sitesi`}
                               </p>
                               <p className="text-sm text-gray-600">#{order.id}</p>
                             </div>
@@ -703,7 +705,7 @@ Teslimat:
                       <tr className="border-b">
                         <th className="text-left p-4 font-semibold">Kullanıcı</th>
                         <th className="text-left p-4 font-semibold">E-posta</th>
-                        <th className="text-left p-4 font-semibold">Rol</th>
+                        <th className="text-left p-4 font-semibold">Şifre</th>
                         <th className="text-left p-4 font-semibold">Kayıt Tarihi</th>
                         <th className="text-left p-4 font-semibold">İşlemler</th>
                       </tr>
@@ -713,37 +715,37 @@ Teslimat:
                         <tr key={user.id} className="border-b hover:bg-gray-50">
                           <td className="p-4">
                             <div>
-                              <div className="font-semibold">
-                                {user.firstName} {user.lastName}
-                              </div>
-                              <div className="text-sm text-gray-600">
-                                ID: {user.id}
-                              </div>
+                              <p className="font-medium">{user.fullName || user.firstName + ' ' + user.lastName || user.email}</p>
+                              <p className="text-sm text-gray-600">#{user.id}</p>
                             </div>
                           </td>
+                          <td className="p-4">{user.email}</td>
                           <td className="p-4">
-                            <span className="text-sm">{user.email}</span>
-                          </td>
-                          <td className="p-4">
-                            <Badge className={getRoleColor(user.role)}>
-                              {getRoleText(user.role)}
-                            </Badge>
-                          </td>
-                          <td className="p-4">
-                            <span className="text-sm text-gray-600">
-                              {new Date(user.createdAt || Date.now()).toLocaleDateString('tr-TR')}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center space-x-2">
-                              <select
-                                value={user.role}
-                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                                className="text-sm border rounded px-2 py-1"
+                            <div className="flex items-center">
+                              <input
+                                type={showPassword[user.id] ? "text" : "password"}
+                                value={user.password || ''}
+                                disabled
+                                className="w-24 px-2 py-1 text-xs border rounded bg-gray-50 text-gray-700"
+                                style={{ fontFamily: 'monospace' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword((prev: any) => ({ ...prev, [user.id]: !prev[user.id] }))}
+                                className="ml-2 text-gray-500 hover:text-gray-700"
+                                tabIndex={-1}
+                                aria-label="Şifreyi Göster/Gizle"
                               >
-                                <option value="customer">Müşteri</option>
-                                <option value="admin">Admin</option>
-                              </select>
+                                {showPassword[user.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                          </td>
+                          <td className="p-4">{new Date(user.createdAt).toLocaleDateString('tr-TR')}</td>
+                          <td className="p-4">
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm" onClick={() => handleDeleteUser(user.id)}>
+                                <Trash className="h-4 w-4 mr-1" /> Sil
+                              </Button>
                             </div>
                           </td>
                         </tr>

@@ -29,6 +29,7 @@ export interface Feature {
 }
 
 export interface Order {
+  customer_phone?: string
   id?: string
   website_name: string
   customer_name: string
@@ -43,7 +44,7 @@ export interface Order {
   selected_pages?: string[]
   total_price: number
   delivery_days: number
-  status?: 'pending' | 'in-progress' | 'completed' | 'delivered'
+  status?: 'pending' | 'in-progress' | 'completed' | 'delivered' | string
   knowledge_text?: string
   created_at?: string
   updated_at?: string
@@ -55,13 +56,16 @@ export interface Order {
 }
 
 export interface User {
+  bio?: string
+  company?: string
   id: string
   email: string
   firstName?: string
   lastName?: string
   fullName?: string
   password?: string // For registered users
-  role: 'admin' | 'customer'
+  role: 'admin' | 'customer' | string
+  phone?: string
   isEmailVerified: boolean
   createdAt: string
   updatedAt: string
@@ -240,7 +244,7 @@ export const useStore = create<StoreState>((set, get) => ({
         totalOrders: orders.length,
         pendingOrders: orders.filter(o => o.status === 'pending').length,
         completedOrders: orders.filter(o => o.status === 'completed').length,
-        totalRevenue: orders.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0)
+        totalRevenue: orders.reduce((sum, o) => sum + (typeof o.total_price === 'string' ? parseFloat(o.total_price) : o.total_price || 0), 0)
       }
 
       set(() => ({ analytics }))
@@ -251,58 +255,52 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   loadUserOrders: async () => {
-    console.log('Store: loadUserOrders called')
+    // Firestore'dan siparişleri çek
     set((state) => ({ isLoading: true }))
-
     try {
-      // Rails backend'ten tüm siparişleri çek
-      console.log(`Store: Fetching from ${API_BASE_URL}/orders`)
-      const response = await fetch(`${API_BASE_URL}/orders`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      console.log('Store: Response status:', response.status)
-
-      if (response.ok) {
-        const apiResponse = await response.json()
-        console.log('Store: API Response from Rails:', apiResponse)
-
-        const orders = apiResponse.data || []
-        console.log('Store: Orders array:', orders)
-        console.log('Store: Orders count:', orders.length)
-
-        // Kullanıcının siparişlerini filtrele (email'e göre)
-        const userData = localStorage.getItem('user-data')
-        console.log('Store: Raw user data from localStorage:', userData)
-
-        const userEmail = userData ? JSON.parse(userData).email : null
-        console.log('Store: User email for filtering:', userEmail)
-
-        const userOrders = userEmail ? orders.filter(order => {
-          console.log('Store: Checking order:', order.email, 'vs', userEmail)
-          return order.email === userEmail
-        }) : []
-        console.log('Store: Filtered user orders:', userOrders)
-        console.log('Store: User orders count:', userOrders.length)
-
-        set((state) => {
-          console.log('Store: Setting userOrders in state')
-          return {
-            ...state,
-            userOrders: userOrders,
-            isLoading: false
-          }
-        })
-        return true
-      } else {
-        const errorText = await response.text()
-        console.error('Store: API Error:', response.status, errorText)
-        throw new Error('Siparişler yüklenemedi: ' + response.status)
+      const userData = localStorage.getItem('user-data')
+      const userEmail = userData ? JSON.parse(userData).email : null
+      if (!userEmail) {
+        set((state) => ({ ...state, isLoading: false }))
+        return false
       }
+      const { db, collection, getDocs, query, where } = await import('./firebase')
+      const ordersRef = collection(db, 'orders')
+      const q = query(ordersRef, where('email', '==', userEmail))
+      const querySnapshot = await getDocs(q)
+      const userOrders = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          website_name: data.website_name || data.websiteName || '',
+          customer_name: data.customer_name || data.customerName || '',
+          customer_surname: data.customer_surname || data.customerSurname || '',
+          customer_email: data.customer_email || data.customerEmail || '',
+          customer_phone: data.customer_phone || data.customerPhone || '',
+          profession: data.profession || '',
+          website_type: data.website_type || data.websiteType || 'single-page',
+          color_palette: data.color_palette || data.colorPalette || '',
+          target_audience: data.target_audience || data.targetAudience || '',
+          purpose: data.purpose || '',
+          additional_features: data.additional_features || data.selectedFeatures || [],
+          selected_pages: data.selected_pages || data.selectedPages || [],
+          total_price: data.total_price || data.totalPrice || 0,
+          base_price: data.base_price || data.basePrice || 0,
+          delivery_days: data.delivery_days || data.deliveryDays || 0,
+          status: data.status || '',
+          knowledge_text: data.knowledge_text || data.specialRequests || '',
+          created_at: data.created_at || data.createdAt || '',
+          updated_at: data.updated_at || data.updatedAt || '',
+          instagram: data.instagram || '',
+          facebook: data.facebook || '',
+          twitter: data.twitter || '',
+          linkedin: data.linkedin || '',
+          youtube: data.youtube || ''
+        }
+      })
+      set(() => ({ userOrders, isLoading: false }))
+      return true
     } catch (error) {
-      console.error('Store: loadUserOrders error:', error)
       set((state) => ({ ...state, isLoading: false }))
       throw error
     }
@@ -751,56 +749,77 @@ export const useStore = create<StoreState>((set, get) => ({
   // Admin functions
   loadAllOrders: async () => {
     try {
-      console.log('Store: Loading all orders for admin')
-      const response = await fetch(`${API_BASE_URL}/orders`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
+      console.log('Store: Loading all orders for admin (Firestore)')
+      const { db, collection, getDocs } = await import('./firebase')
+      const ordersRef = collection(db, 'orders')
+      const querySnapshot = await getDocs(ordersRef)
+      const orders = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          website_name: data.website_name || data.websiteName || '',
+          customer_name: data.customer_name || data.customerName || '',
+          customer_surname: data.customer_surname || data.customerSurname || '',
+          customer_email: data.customer_email || data.customerEmail || '',
+          customer_phone: data.customer_phone || data.customerPhone || '',
+          profession: data.profession || '',
+          website_type: data.website_type || data.websiteType || 'single-page',
+          color_palette: data.color_palette || data.colorPalette || '',
+          target_audience: data.target_audience || data.targetAudience || '',
+          purpose: data.purpose || '',
+          additional_features: data.additional_features || data.selectedFeatures || [],
+          selected_pages: data.selected_pages || data.selectedPages || [],
+          total_price: data.total_price || data.totalPrice || 0,
+          base_price: data.base_price || data.basePrice || 0,
+          delivery_days: data.delivery_days || data.deliveryDays || 0,
+          status: data.status || '',
+          knowledge_text: data.knowledge_text || data.specialRequests || '',
+          created_at: data.created_at || data.createdAt || '',
+          updated_at: data.updated_at || data.updatedAt || '',
+          instagram: data.instagram || '',
+          facebook: data.facebook || '',
+          twitter: data.twitter || '',
+          linkedin: data.linkedin || '',
+          youtube: data.youtube || '',
+          website_url: data.website_url || data.websiteUrl || ''
+        }
       })
-
-      if (response.ok) {
-        const apiResponse = await response.json()
-        console.log('Store: All orders loaded:', apiResponse)
-
-        const orders = apiResponse.data || []
-        set((state) => ({ orders }))
-        return true
-      } else {
-        console.error('Store: Failed to load all orders')
-        return false
-      }
+      set((state) => ({ orders }))
+      return true
     } catch (error) {
-      console.error('Store: Error loading all orders:', error)
+      console.error('Store: Error loading all orders (Firestore):', error)
       return false
     }
   },
 
   loadAllUsers: async () => {
     try {
-      console.log('Store: Loading all users for admin')
-      const response = await fetch(`${API_BASE_URL}/users`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
+      console.log('Store: Loading all users for admin (Firestore)')
+      const { db, collection, getDocs } = await import('./firebase')
+      const usersRef = collection(db, 'users')
+      const querySnapshot = await getDocs(usersRef)
+      const users = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          email: data.email || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          fullName: data.fullName || `${data.firstName || ''} ${data.lastName || ''}`,
+          role: data.role || 'customer',
+          phone: data.phone || '',
+          company: data.company || '',
+          bio: data.bio || '',
+          password: data.password || '',
+          isEmailVerified: data.isEmailVerified || false,
+          createdAt: data.createdAt || '',
+          updatedAt: data.updatedAt || ''
+        }
       })
-
-      if (response.ok) {
-        const apiResponse = await response.json()
-        console.log('Store: All users loaded:', apiResponse)
-
-        const users = apiResponse.data || []
-        set((state) => ({ users }))
-        return true
-      } else {
-        console.error('Store: Failed to load all users')
-        return false
-      }
+      set((state) => ({ users }))
+      return true
     } catch (error) {
-      console.error('Store: Error loading all users:', error)
+      console.error('Store: Error loading all users (Firestore):', error)
       return false
     }
   }

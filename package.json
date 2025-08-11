@@ -20,5 +20,8 @@
     "url": "https://github.com/yusufsenyer/website_builder_rails.git"
   },
   "author": "Yusuf Senyer",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "firebase": "^12.1.0"
+  }
 }
