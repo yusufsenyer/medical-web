@@ -73,6 +73,7 @@ export default function CustomerDashboard() {
         try {
           await loadUserOrders()
           console.log('Dashboard: User orders loaded, count:', userOrders.length)
+          console.log('Dashboard: User orders data:', userOrders)
         } catch (error) {
           console.error('Error loading user orders:', error)
         } finally {
@@ -90,6 +91,13 @@ export default function CustomerDashboard() {
   useEffect(() => {
     console.log('Dashboard: userOrders changed:', userOrders)
     console.log('Dashboard: userOrders length:', userOrders.length)
+    console.log('Dashboard: userOrders details:', userOrders.map(order => ({
+      id: order.id,
+      website_name: order.website_name,
+      customer_email: order.customer_email,
+      status: order.status,
+      created_at: order.created_at
+    })))
   }, [userOrders])
 
   // Debug user data
@@ -193,6 +201,28 @@ export default function CustomerDashboard() {
               <Plus className="h-4 w-4 mr-2" />
               Yeni Sipariş
             </Button>
+            <Button 
+              variant="outline" 
+              onClick={async () => {
+                console.log('=== MANUAL REFRESH TRIGGERED ===')
+                console.log('Current user:', user)
+                console.log('Current userOrders count:', userOrders.length)
+                console.log('Current userOrders:', userOrders)
+                
+                // Check localStorage
+                const userData = localStorage.getItem('user-data')
+                console.log('localStorage user-data:', userData)
+                if (userData) {
+                  const parsed = JSON.parse(userData)
+                  console.log('Parsed user data:', parsed)
+                  console.log('User email from localStorage:', parsed.email)
+                }
+                
+                await loadUserOrders()
+              }}
+            >
+              Yenile
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               Çıkış Yap
             </Button>
@@ -248,6 +278,8 @@ export default function CustomerDashboard() {
           </Card>
         </div>
 
+
+
         {/* Delivered Websites */}
         {userOrders.filter(order => (order.status === 'delivered' || order.status === 'completed') && order.websiteUrl).length > 0 && (
           <Card>
@@ -291,7 +323,10 @@ export default function CustomerDashboard() {
 
                         <div className="flex space-x-2">
                           <Button
-                            onClick={() => window.open(order.websiteUrl, '_blank')}
+                            onClick={() => {
+                              const url: string = (order.websiteUrl as string) || ''
+                              if (url) window.open(url, '_blank')
+                            }}
                             className="flex-1 bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white"
                             size="sm"
                           >
@@ -356,30 +391,36 @@ export default function CustomerDashboard() {
                           </Badge>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-2">
+                        {/* 12 kolonlu sabit grid: 3-3-3-3 dağılımı ile hizalama sabitlenir */}
+                        <div className="grid grid-cols-12 gap-4 text-sm text-muted-foreground items-center">
+                          <div className="col-span-12 md:col-span-3 flex items-center space-x-2 min-w-[160px]">
                             <Globe className="h-4 w-4" />
-                            <span>{order.websiteType}</span>
+                            <span className="truncate">{order.websiteType || order.website_type || 'Bilinmiyor'}</span>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="col-span-12 md:col-span-3 flex items-center space-x-2 min-w-[180px]">
                             <Calendar className="h-4 w-4" />
-                            <span>{new Date(order.createdAt || Date.now()).toLocaleDateString('tr-TR')}</span>
+                            <span>{new Date(order.createdAt || order.created_at || Date.now()).toLocaleDateString('tr-TR')}</span>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="col-span-12 md:col-span-3 flex items-center space-x-2 min-w-[140px]">
                             <span className="font-semibold text-foreground">
-                              ₺{order.totalPrice?.toLocaleString('tr-TR')}
+                              ₺{(order.totalPrice || order.total_price || 0).toLocaleString('tr-TR')}
                             </span>
                           </div>
+                          {/* Buton alanı sabit genişlikte tutulur ki hizalama kaymasın */}
+                          <div className="col-span-12 md:col-span-3 flex items-center justify-end min-w-[220px]"></div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 w-full md:w-[220px] justify-end">
                         {/* Website URL Button - Show if delivered */}
-                        {(order.status === 'delivered' || order.status === 'completed') && order.websiteUrl && (
+                        {(order.status === 'delivered' || order.status === 'completed') && !!(order.websiteUrl || order.website_url) && (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.open(order.websiteUrl, '_blank')}
+                            onClick={() => {
+                              const url: string = (order.websiteUrl as string) || (order.website_url as string) || '';
+                              if (url) window.open(url, '_blank');
+                            }}
                             className="text-green-600 border-green-200 hover:bg-green-50"
                           >
                             <Globe className="h-4 w-4 mr-1" />

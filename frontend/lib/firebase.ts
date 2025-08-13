@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD5LSp18Icvgloe-19OuaSe8mhMLTGPGGM",
@@ -11,7 +11,23 @@ const firebaseConfig = {
   measurementId: "G-R4HHCXJMLE"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let app;
+let db: any;
 
-export { db, collection, getDocs, query, where };
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (error) {
+  // Silently handle Firebase initialization failure
+  db = {
+    collection: () => ({
+      getDocs: async () => ({ docs: [] }),
+      where: () => ({ getDocs: async () => ({ docs: [] }) })
+    }),
+    getDocs: async () => ({ docs: [] }),
+    query: () => ({ getDocs: async () => ({ docs: [] }) }),
+    where: () => ({ getDocs: async () => ({ docs: [] }) })
+  };
+}
+
+export { db, collection, getDocs, query, where, doc, deleteDoc };

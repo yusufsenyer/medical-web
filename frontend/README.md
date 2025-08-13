@@ -1,186 +1,89 @@
-# WebBuilder Pro 🚀
+# MedicalWeb Pro Frontend
 
-Modern, professional web sitesi oluşturma platformu. Next.js 14, TypeScript ve Tailwind CSS ile geliştirilmiş tam özellikli bir SaaS uygulaması.
+Bu proje Next.js 13 ile geliştirilmiş hekimler için web sitesi siparişleme platformudur.
 
-## ✨ Özellikler
+## Kurulum
 
-### 🎨 Modern UI/UX
-- **Responsive Design**: Tüm cihazlarda mükemmel görünüm
-- **Glassmorphism Effects**: Modern cam efektleri
-- **Blue-Purple Gradient**: Profesyonel renk paleti
-- **Smooth Animations**: Framer Motion ile akıcı animasyonlar
-- **Toast Notifications**: Kullanıcı dostu bildirimler
-
-### 🔐 Authentication Sistemi
-- **Admin Panel**: `admin123@example.com` / `admin123`
-- **User Registration**: Kullanıcı kayıt sistemi
-- **Role-Based Access**: Admin ve müşteri rolleri
-- **Email Validation**: Gerçek zamanlı email doğrulama
-- **Session Management**: Güvenli oturum yönetimi
-
-### 📊 Admin Panel
-- **Real-time Analytics**: Canlı istatistikler
-- **Order Management**: Sipariş yönetimi
-- **PDF Export**: Sipariş raporları
-- **Status Updates**: Sipariş durumu güncelleme
-- **Search & Filter**: Gelişmiş arama ve filtreleme
-
-### 🛒 Sipariş Sistemi
-- **Multi-step Form**: Adım adım sipariş formu
-- **Dynamic Pricing**: Dinamik fiyat hesaplama
-- **Feature Selection**: Özellik seçimi
-- **Real-time Preview**: Anlık önizleme
-- **Order Tracking**: Sipariş takibi
-
-## 🛠️ Teknolojiler
-
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI + shadcn/ui
-- **State Management**: Zustand
-- **Animations**: Framer Motion
-- **Forms**: React Hook Form + Zod
-- **Icons**: Lucide React
-
-## 🚀 Kurulum
-
-### Gereksinimler
-- Node.js 18+ 
-- npm veya yarn
-
-### Adımlar
-
-1. **Repository'yi klonlayın**
-```bash
-git clone https://github.com/yusufsenyer/website_builder.git
-cd website_builder
-```
-
-2. **Bağımlılıkları yükleyin**
+1. Bağımlılıkları yükleyin:
 ```bash
 npm install
-# veya
-yarn install
 ```
 
-3. **Development server'ı başlatın**
+2. Environment variables dosyası oluşturun:
+```bash
+cp .env.example .env.local
+```
+
+3. `.env.local` dosyasını düzenleyin:
+```env
+# Firebase Configuration (Opsiyonel - demo için fallback var)
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
+
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api/v1
+
+# Supabase Configuration (Opsiyonel)
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# CORS Configuration
+NEXT_PUBLIC_ALLOWED_ORIGIN=http://localhost:3001
+```
+
+4. Geliştirme sunucusunu başlatın:
 ```bash
 npm run dev
-# veya
-yarn dev
 ```
 
-4. **Tarayıcıda açın**
-```
-http://localhost:3000
-```
+## Port Yapılandırması
 
-## 📱 Kullanım
+- **Frontend (Next.js)**: `http://localhost:3001`
+- **Backend (Rails)**: `http://localhost:3000`
 
-### Admin Girişi
-- **URL**: `/auth/login`
-- **Email**: `admin123@example.com`
-- **Password**: `admin123`
+## Demo Hesaplar
 
-### Kullanıcı Kaydı
-- **URL**: `/auth/signup`
-- Kayıt sonrası giriş yapabilirsiniz
+### Admin Hesabı
+- **E-posta**: `admin123@example.com`
+- **Şifre**: `admin123`
 
-### Web Sitesi Oluşturma
-- **URL**: `/order`
-- Giriş gerekli
-- Adım adım form doldurma
-- Dinamik fiyat hesaplama
+### Backend Admin Hesabı
+- **E-posta**: `admin123@gmail.com`
+- **Şifre**: `admin123`
 
-### Admin Panel
-- **URL**: `/admin`
-- Sadece admin hesabı ile tam erişim
-- Sipariş yönetimi ve analytics
+## Özellikler
 
-## 📁 Proje Yapısı
+- ✅ Kullanıcı kayıt/giriş sistemi
+- ✅ Admin paneli (sipariş yönetimi, kullanıcı yönetimi)
+- ✅ Müşteri dashboard'u
+- ✅ 5 adımlı sipariş formu
+- ✅ Responsive tasarım
+- ✅ Firebase entegrasyonu (opsiyonel)
+- ✅ Rails API entegrasyonu
 
-```
-├── app/                    # Next.js App Router
-│   ├── admin/             # Admin panel
-│   ├── auth/              # Authentication pages
-│   ├── order/             # Order process
-│   └── page.tsx           # Homepage
-├── components/            # React components
-│   ├── auth/              # Auth components
-│   ├── home/              # Homepage components
-│   ├── layout/            # Layout components
-│   ├── order/             # Order components
-│   └── ui/                # UI components
-├── hooks/                 # Custom hooks
-├── lib/                   # Utilities
-│   ├── auth/              # Auth utilities
-│   ├── store.ts           # Zustand store
-│   └── utils.ts           # Helper functions
-└── public/                # Static assets
-```
+## Sorun Giderme
 
-## 🎯 Özellik Detayları
+### Firestore Bağlantı Hatası
+Firebase konfigürasyonu yoksa uygulama demo modunda çalışır. Gerçek Firebase kullanmak için `.env.local` dosyasını düzenleyin.
 
-### Authentication Flow
-1. **Kayıt**: Email validation + user storage
-2. **Giriş**: Admin/user role kontrolü
-3. **Session**: LocalStorage ile persistence
-4. **Logout**: Güvenli çıkış
+### CORS Hatası
+Backend'in `http://localhost:3000`'de çalıştığından emin olun.
 
-### Order Process
-1. **Personal Info**: Kişisel bilgiler
-2. **Website Details**: Site detayları
-3. **Features**: Özellik seçimi
-4. **Design**: Tasarım tercihleri
-5. **Summary**: Özet ve onay
+### Hydration Uyarısı
+Browser extension'larından gelen "bis_skin_checked" uyarısı bastırılmıştır.
 
-### Admin Features
-- **Dashboard**: Analytics ve metrikler
-- **Orders**: Sipariş listesi ve detayları
-- **PDF Export**: Raporlama
-- **Status Management**: Durum güncelleme
+## Teknolojiler
 
-## 🔧 Geliştirme
-
-### Scripts
-```bash
-npm run dev          # Development server
-npm run build        # Production build
-npm run start        # Production server
-npm run lint         # ESLint check
-```
-
-### Environment Variables
-```env
-# Gerekli environment variables yoktur
-# Tüm veriler localStorage'da saklanır
-```
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
-## 👨‍💻 Geliştirici
-
-**Yusuf Senyer**
-- GitHub: [@yusufsenyer](https://github.com/yusufsenyer)
-- Email: yusufsenyer@gmail.com
-
-## 🤝 Katkıda Bulunma
-
-1. Fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit edin (`git commit -m 'Add amazing feature'`)
-4. Push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
-
-## 📞 Destek
-
-Herhangi bir sorun veya öneriniz için:
-- GitHub Issues açın
-- Email gönderin: yusufsenyer@gmail.com
-
----
-
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+- **Framework**: Next.js 13 (App Router)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State Management**: Zustand
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Forms**: React Hook Form + Zod
+- **Database**: Firebase Firestore (opsiyonel)
+- **Backend**: Rails API

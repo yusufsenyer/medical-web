@@ -53,6 +53,25 @@ export interface Order {
   twitter?: string
   linkedin?: string
   youtube?: string
+  // Additional fields for compatibility
+  siteName?: string
+  customerName?: string
+  customerSurname?: string
+  customerEmail?: string
+  customerPhone?: string
+  websiteType?: string
+  colorPalette?: string
+  targetAudience?: string
+  additionalFeatures?: string[]
+  selectedPages?: string[]
+  totalPrice?: number
+  basePrice?: number
+  deliveryDays?: number
+  specialRequests?: string
+  createdAt?: string
+  updatedAt?: string
+  website_url?: string
+  websiteUrl?: string
 }
 
 export interface User {
@@ -120,6 +139,7 @@ interface StoreState {
   loadAllUsers: () => Promise<boolean>
   loadAllOrders: () => Promise<boolean>
   updateUserRole: (userId: string, role: string) => Promise<boolean>
+  deleteUser: (userId: string) => Promise<boolean>
 
   // Auth actions
   setUser: (user: User | null) => void
@@ -260,47 +280,115 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       const userData = localStorage.getItem('user-data')
       const userEmail = userData ? JSON.parse(userData).email : null
+      console.log('loadUserOrders: userEmail:', userEmail)
+      
       if (!userEmail) {
+        console.log('loadUserOrders: No user email found')
         set((state) => ({ ...state, isLoading: false }))
         return false
       }
-      const { db, collection, getDocs, query, where } = await import('./firebase')
-      const ordersRef = collection(db, 'orders')
-      const q = query(ordersRef, where('email', '==', userEmail))
-      const querySnapshot = await getDocs(q)
-      const userOrders = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          website_name: data.website_name || data.websiteName || '',
-          customer_name: data.customer_name || data.customerName || '',
-          customer_surname: data.customer_surname || data.customerSurname || '',
-          customer_email: data.customer_email || data.customerEmail || '',
-          customer_phone: data.customer_phone || data.customerPhone || '',
-          profession: data.profession || '',
-          website_type: data.website_type || data.websiteType || 'single-page',
-          color_palette: data.color_palette || data.colorPalette || '',
-          target_audience: data.target_audience || data.targetAudience || '',
-          purpose: data.purpose || '',
-          additional_features: data.additional_features || data.selectedFeatures || [],
-          selected_pages: data.selected_pages || data.selectedPages || [],
-          total_price: data.total_price || data.totalPrice || 0,
-          base_price: data.base_price || data.basePrice || 0,
-          delivery_days: data.delivery_days || data.deliveryDays || 0,
-          status: data.status || '',
-          knowledge_text: data.knowledge_text || data.specialRequests || '',
-          created_at: data.created_at || data.createdAt || '',
-          updated_at: data.updated_at || data.updatedAt || '',
-          instagram: data.instagram || '',
-          facebook: data.facebook || '',
-          twitter: data.twitter || '',
-          linkedin: data.linkedin || '',
-          youtube: data.youtube || ''
-        }
-      })
-      set(() => ({ userOrders, isLoading: false }))
-      return true
+      
+      try {
+        const { db, collection, getDocs, query, where } = await import('./firebase')
+        console.log('loadUserOrders: Firebase imported successfully')
+        
+        const ordersRef = collection(db as any, 'orders')
+        console.log('loadUserOrders: Orders collection reference created')
+        
+        // Firebase'deki gerçek veri yapısına göre arama
+        // Kullanıcı verilerinde email field'ı var, siparişlerde customer_email olabilir
+        const q1 = query(ordersRef, where('customer_email', '==', userEmail))
+        const q2 = query(ordersRef, where('email', '==', userEmail))
+        const q3 = query(ordersRef, where('customerEmail', '==', userEmail))
+        
+        console.log('loadUserOrders: Queries created, executing...')
+        
+        const [querySnapshot1, querySnapshot2, querySnapshot3] = await Promise.all([
+          getDocs(q1).catch(() => ({ docs: [] })),
+          getDocs(q2).catch(() => ({ docs: [] })),
+          getDocs(q3).catch(() => ({ docs: [] }))
+        ])
+        
+        const allDocs = [
+          ...querySnapshot1.docs,
+          ...querySnapshot2.docs,
+          ...querySnapshot3.docs
+        ]
+        
+        console.log('loadUserOrders: Found orders count:', allDocs.length)
+        console.log('loadUserOrders: Query results:', {
+          customer_email: querySnapshot1.docs.length,
+          email: querySnapshot2.docs.length,
+          customerEmail: querySnapshot3.docs.length
+        })
+        
+        // Duplicate removal based on document ID
+        const uniqueDocs = allDocs.filter((doc, index, self) => 
+          index === self.findIndex(d => d.id === doc.id)
+        )
+        
+        console.log('loadUserOrders: Unique orders count:', uniqueDocs.length)
+        
+        const userOrders = uniqueDocs.map(doc => {
+          const data = doc.data();
+          console.log('loadUserOrders: Order data:', data)
+          return {
+            id: doc.id,
+            website_name: data.website_name || data.websiteName || '',
+            customer_name: data.customer_name || data.customerName || '',
+            customer_surname: data.customer_surname || data.customerSurname || '',
+            customer_email: data.customer_email || data.customerEmail || data.email || '',
+            customer_phone: data.customer_phone || data.customerPhone || '',
+            profession: data.profession || '',
+            website_type: data.website_type || data.websiteType || 'single-page',
+            color_palette: data.color_palette || data.colorPalette || '',
+            target_audience: data.target_audience || data.targetAudience || '',
+            purpose: data.purpose || '',
+            additional_features: data.additional_features || data.selectedFeatures || [],
+            selected_pages: data.selected_pages || data.selectedPages || [],
+            total_price: data.total_price || data.totalPrice || 0,
+            base_price: data.base_price || data.basePrice || 0,
+            delivery_days: data.delivery_days || data.deliveryDays || 0,
+            status: data.status || 'pending',
+            knowledge_text: data.knowledge_text || data.specialRequests || '',
+            created_at: data.created_at || data.createdAt || '',
+            updated_at: data.updated_at || data.updatedAt || '',
+            instagram: data.instagram || '',
+            facebook: data.facebook || '',
+            twitter: data.twitter || '',
+            linkedin: data.linkedin || '',
+            youtube: data.youtube || '',
+            website_url: data.website_url || data.websiteUrl || '',
+            // Additional fields for compatibility
+            siteName: data.website_name || data.websiteName || '',
+            customerName: data.customer_name || data.customerName || '',
+            customerSurname: data.customer_surname || data.customerSurname || '',
+            customerEmail: data.customer_email || data.customerEmail || data.email || '',
+            customerPhone: data.customer_phone || data.customerPhone || '',
+            websiteType: data.website_type || data.websiteType || 'single-page',
+            colorPalette: data.color_palette || data.colorPalette || '',
+            targetAudience: data.target_audience || data.targetAudience || '',
+            additionalFeatures: data.additional_features || data.selectedFeatures || [],
+            selectedPages: data.selected_pages || data.selectedPages || [],
+            totalPrice: data.total_price || data.totalPrice || 0,
+            basePrice: data.base_price || data.basePrice || 0,
+            deliveryDays: data.delivery_days || data.deliveryDays || 0,
+            specialRequests: data.knowledge_text || data.specialRequests || '',
+            createdAt: data.created_at || data.createdAt || '',
+            updatedAt: data.updated_at || data.updatedAt || '',
+            websiteUrl: data.website_url || data.websiteUrl || ''
+          }
+        })
+        console.log('loadUserOrders: Processed orders:', userOrders)
+        set(() => ({ userOrders, isLoading: false }))
+        return true
+      } catch (firestoreError) {
+        console.error('loadUserOrders: Firestore error:', firestoreError)
+        set(() => ({ userOrders: [], isLoading: false }))
+        return true
+      }
     } catch (error) {
+      console.error('loadUserOrders: General error:', error)
       set((state) => ({ ...state, isLoading: false }))
       throw error
     }
@@ -354,6 +442,24 @@ export const useStore = create<StoreState>((set, get) => ({
       } else {
         throw new Error('Kullanıcı rolü güncellenemedi')
       }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  deleteUser: async (userId: string) => {
+    try {
+      // Firestore'dan kullanıcıyı sil
+      const { db, collection, doc, deleteDoc } = await import('./firebase')
+      const userRef = doc(db as any, 'users', userId)
+      await deleteDoc(userRef)
+      
+      // Local state'den kullanıcıyı kaldır
+      set((state) => ({
+        users: state.users.filter(user => user.id !== userId)
+      }))
+      
+      return true
     } catch (error) {
       throw error
     }
@@ -749,9 +855,8 @@ export const useStore = create<StoreState>((set, get) => ({
   // Admin functions
   loadAllOrders: async () => {
     try {
-      console.log('Store: Loading all orders for admin (Firestore)')
       const { db, collection, getDocs } = await import('./firebase')
-      const ordersRef = collection(db, 'orders')
+      const ordersRef = collection(db as any, 'orders')
       const querySnapshot = await getDocs(ordersRef)
       const orders = querySnapshot.docs.map(doc => {
         const data = doc.data();
@@ -774,8 +879,8 @@ export const useStore = create<StoreState>((set, get) => ({
           delivery_days: data.delivery_days || data.deliveryDays || 0,
           status: data.status || '',
           knowledge_text: data.knowledge_text || data.specialRequests || '',
-          created_at: data.created_at || data.createdAt || '',
-          updated_at: data.updated_at || data.updatedAt || '',
+          created_at: data.created_at || data.createdAt || new Date().toISOString(),
+          updated_at: data.updated_at || data.updatedAt || new Date().toISOString(),
           instagram: data.instagram || '',
           facebook: data.facebook || '',
           twitter: data.twitter || '',
@@ -787,19 +892,19 @@ export const useStore = create<StoreState>((set, get) => ({
       set((state) => ({ orders }))
       return true
     } catch (error) {
-      console.error('Store: Error loading all orders (Firestore):', error)
-      return false
+      set((state) => ({ orders: [] }))
+      return true
     }
   },
 
   loadAllUsers: async () => {
     try {
-      console.log('Store: Loading all users for admin (Firestore)')
       const { db, collection, getDocs } = await import('./firebase')
-      const usersRef = collection(db, 'users')
+      const usersRef = collection(db as any, 'users')
       const querySnapshot = await getDocs(usersRef)
       const users = querySnapshot.docs.map(doc => {
         const data = doc.data();
+        console.log('loadAllUsers: User data:', data)
         return {
           id: doc.id,
           email: data.email || '',
@@ -811,16 +916,18 @@ export const useStore = create<StoreState>((set, get) => ({
           company: data.company || '',
           bio: data.bio || '',
           password: data.password || '',
-          isEmailVerified: data.isEmailVerified || false,
-          createdAt: data.createdAt || '',
-          updatedAt: data.updatedAt || ''
+          isEmailVerified: data.isEmailVerified || data.isActive || false,
+          createdAt: data.createdAt || data.created_at || new Date().toISOString(),
+          updatedAt: data.updatedAt || data.updated_at || new Date().toISOString()
         }
       })
+      console.log('loadAllUsers: Processed users:', users)
       set((state) => ({ users }))
       return true
     } catch (error) {
-      console.error('Store: Error loading all users (Firestore):', error)
-      return false
+      console.error('loadAllUsers: Error:', error)
+      set((state) => ({ users: [] }))
+      return true
     }
   }
 }))

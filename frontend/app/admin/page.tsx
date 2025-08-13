@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { EyeOff } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,7 +17,6 @@ import {
   Filter,
   Download,
   Eye,
-  EyeOff,
   Clock,
   CheckCircle,
   Calendar,
@@ -42,12 +42,54 @@ import { useAuth } from '@/hooks/use-auth'
 import { useStore } from '@/lib/store'
 import { generateOrderPDF, generateAllOrdersPDF } from '@/lib/pdf-utils'
 
-// All data comes from backend API
+interface Analytics {
+  totalRevenue: number;
+  totalOrders: number;
+  pendingOrders: number;
+  completedOrders: number;
+}
 
-export default function AdminPage() {
+interface Order {
+  id: string;
+  website_name?: string;
+  siteName?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'delivered';
+  total_price: number;
+  totalPrice?: number;
+  created_at: string;
+  createdAt?: string;
+  customer_name?: string;
+  customer_surname?: string;
+  customerName?: string;
+  customerSurname?: string;
+  email?: string;
+  customer_email?: string;
+  customerEmail?: string;
+  customer_phone?: string;
+  customerPhone?: string;
+  website_type?: string;
+  websiteType?: string;
+  notes?: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  linkedin?: string;
+  youtube?: string;
+  profession?: string;
+  selected_pages?: string[] | string;
+  selectedPages?: string[] | string;
+  additional_features?: any[];
+  selected_features?: any[];
+  basePrice?: number;
+  deliveryDays?: number;
+  specialRequests?: string;
+  updatedAt?: string;
+}
+
+function AdminPageContent() {
   const router = useRouter()
   const { user, logout, isAuthenticated } = useAuth()
-  const { orders, analytics, users, updateOrderStatus, loadAllOrders, loadAnalytics, loadAllUsers, updateUserRole } = useStore()
+  const { orders, analytics, users, updateOrderStatus, loadAllOrders, loadAnalytics, loadAllUsers, updateUserRole, deleteUser } = useStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
@@ -61,7 +103,7 @@ export default function AdminPage() {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [refreshInterval, setRefreshInterval] = useState(30) // seconds
   const [lastRefresh, setLastRefresh] = useState(new Date())
-  const [showPassword, setShowPassword] = useState<{ [key: string]: boolean }>({})
+  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({})
 
   // Mount effect
   useEffect(() => {
@@ -117,14 +159,20 @@ export default function AdminPage() {
   }, [user, loadAllOrders, loadAnalytics, loadAllUsers])
 
   useEffect(() => {
-    if (!autoRefresh || !user?.role === 'admin') return
+    let intervalId: NodeJS.Timeout;
+    
+    if (autoRefresh && user?.role === 'admin') {
+      intervalId = setInterval(() => {
+        refreshData()
+      }, refreshInterval * 1000)
+    }
 
-    const interval = setInterval(() => {
-      refreshData()
-    }, refreshInterval * 1000)
-
-    return () => clearInterval(interval)
-  }, [autoRefresh, refreshInterval, refreshData, user])
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [autoRefresh, refreshInterval, refreshData, user?.role])
 
   const handleLogout = () => {
     logout()
@@ -224,6 +272,19 @@ Teslimat:
     } catch (error) {
       console.error('Error updating user role:', error)
       // Optionally show error message
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      if (confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
+        await deleteUser(userId)
+        // Refresh users list
+        await loadAllUsers()
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      alert('Kullanıcı silinirken hata oluştu')
     }
   }
 
@@ -327,21 +388,21 @@ Teslimat:
 
 
 
-  const filteredOrders = (orders || []).filter(order => {
-    const customerName = order.customer_name || order.customerName || `${order.customer_surname || order.customerSurname || ''}`.trim();
-    const customerEmail = order.customer_email || order.customerEmail || '';
-    const websiteType = order.website_type || order.websiteType || '';
+  const filteredOrders = useMemo(() => (orders || []).filter(order => {
+    const customerName = order.customer_name || '';
+    const customerEmail = order.customer_email || '';
+    const websiteType = order.website_type || '';
 
     const matchesSearch =
-      (websiteType || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (customerEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (String(order.id) || '').toLowerCase().includes(searchTerm.toLowerCase())
+      websiteType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.id || '').toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus
 
     return matchesSearch && matchesStatus
-  })
+  }), [orders, searchTerm, selectedStatus])
 
   // Show loading state
   if (!mounted || isLoading) {
@@ -358,6 +419,31 @@ Teslimat:
         </main>
       </div>
     )
+  }
+
+  if (!mounted) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    router.push('/auth/login');
+    return null;
+  }
+
+  if (user?.role !== 'admin') {
+    router.push('/dashboard');
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-teal-600 mx-auto mb-4" />
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -465,57 +551,71 @@ Teslimat:
 
           <TabsContent value="dashboard" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Toplam Gelir</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        ₺{analytics.totalRevenue?.toLocaleString('tr-TR') || '0'}
-                      </p>
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-6">
+                      <div className="animate-pulse h-16 bg-gray-200 rounded"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Toplam Gelir</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          ₺{(typeof analytics.totalRevenue === 'number' ? analytics.totalRevenue : 0).toLocaleString('tr-TR')}
+                        </p>
+                      </div>
+                      <DollarSign className="h-8 w-8 text-green-600" />
                     </div>
-                    <DollarSign className="h-8 w-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Toplam Sipariş</p>
-                      <p className="text-2xl font-bold text-teal-600">{analytics.totalOrders || 0}</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Toplam Sipariş</p>
+                        <p className="text-2xl font-bold text-teal-600">{analytics.totalOrders || 0}</p>
+                      </div>
+                      <Package className="h-8 w-8 text-teal-600" />
                     </div>
-                    <Package className="h-8 w-8 text-teal-600" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Bekleyen Sipariş</p>
-                      <p className="text-2xl font-bold text-orange-600">{analytics.pendingOrders || 0}</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Bekleyen Sipariş</p>
+                        <p className="text-2xl font-bold text-orange-600">
+                          {typeof analytics.pendingOrders === 'number' ? analytics.pendingOrders.toString() : '0'}
+                        </p>
+                      </div>
+                      <Clock className="h-8 w-8 text-orange-600" />
                     </div>
-                    <Clock className="h-8 w-8 text-orange-600" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Tamamlanan</p>
-                      <p className="text-2xl font-bold text-purple-600">{analytics.completedOrders || 0}</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Tamamlanan</p>
+                        <p className="text-2xl font-bold text-purple-600">{analytics.completedOrders || 0}</p>
+                      </div>
+                      <TrendingUp className="h-8 w-8 text-purple-600" />
                     </div>
-                    <TrendingUp className="h-8 w-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {/* Recent Orders */}
             <Card>
@@ -528,16 +628,23 @@ Teslimat:
                     <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <h4 className="font-semibold">
-                          {order.website_name || order.siteName || `${getCustomerName(order)} Web Sitesi`}
+                          {order.website_name || `${getCustomerName(order)} Web Sitesi`}
                         </h4>
-                        <Badge className={getStatusColor(order.status || '')}>
-                          {getStatusText(order.status || '')}
+                        <Badge className={getStatusColor(order.status || 'pending')}>
+                          {getStatusText(order.status || 'pending')}
                         </Badge>
                       </div>
                       <div className="flex items-center space-x-4">
                         <span className="font-semibold">₺{(order.total_price || 0).toLocaleString('tr-TR')}</span>
-                        <span className="text-sm text-gray-600">{new Date(order.created_at || Date.now()).toLocaleDateString('tr-TR')}</span>
-                        <p className="font-medium">{user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email}</p>
+                        <span className="text-sm text-gray-600">
+                          {(() => {
+                            const date = order.created_at ? new Date(order.created_at) : new Date();
+                            return !isNaN(date.getTime()) 
+                              ? date.toLocaleDateString('tr-TR')
+                              : 'Geçersiz Tarih';
+                          })()}
+                        </span>
+                        <p className="font-medium">{getCustomerName(order)}</p>
                       </div>
                     </div>
                   ))}
@@ -585,14 +692,7 @@ Teslimat:
               </CardContent>
             </Card>
 
-            {/* DEBUG: Orders Info */}
-            <div className="bg-yellow-100 p-4 rounded-lg border border-yellow-300 mb-4">
-              <strong>DEBUG - Orders Info:</strong><br/>
-              Total orders: {orders.length}<br/>
-              Filtered orders: {filteredOrders.length}<br/>
-              Latest order ID: {orders.length > 0 ? Math.max(...orders.map(o => o.id)) : 'None'}<br/>
-              Order IDs: {orders.map(o => o.id).join(', ')}
-            </div>
+
 
             {/* Orders Table */}
             <Card>
@@ -617,7 +717,7 @@ Teslimat:
                           <td className="p-4">
                             <div>
                               <p className="font-semibold">
-                                {order.website_name || order.siteName || `${getCustomerName(order)} Web Sitesi`}
+                                {order.website_name || `${getCustomerName(order)} Web Sitesi`}
                               </p>
                               <p className="text-sm text-gray-600">#{order.id}</p>
                             </div>
@@ -628,31 +728,40 @@ Teslimat:
                                 {getCustomerName(order)}
                               </p>
                               <p className="text-sm text-gray-600">
-                                {order.email || order.customerEmail || order.customer_email || 'E-posta yok'}
+                                {order.customer_email || 'E-posta yok'}
                               </p>
                             </div>
                           </td>
                           <td className="p-4">
                             <Badge variant="outline">
-                              {order.customerPhone || order.customer_phone || 'Telefon yok'}
+                              {order.customer_phone || 'Telefon yok'}
                             </Badge>
                           </td>
                           <td className="p-4">
                             <span className="capitalize">
-                              {order.websiteType || order.website_type || 'Bilinmiyor'}
+                              {order.website_type || 'Bilinmiyor'}
                             </span>
                           </td>
                           <td className="p-4">
-                            <Badge className={getStatusColor(order.status)}>
-                              {getStatusText(order.status)}
+                            <Badge className={getStatusColor(order.status || 'pending')}>
+                              {getStatusText(order.status || 'pending')}
                             </Badge>
                           </td>
                           <td className="p-4 font-semibold">
-                            ₺{(order.total_price || order.totalPrice || 0).toLocaleString('tr-TR')}
+                            ₺{(order.total_price || 0).toLocaleString('tr-TR')}
                           </td>
                           <td className="p-4">
                             <span className="text-sm text-gray-600">
-                              {new Date(order.createdAt || order.created_at || Date.now()).toLocaleDateString('tr-TR')}
+                              {(() => {
+                                const date = new Date(order.created_at || Date.now());
+                                return isNaN(date.getTime()) 
+                                  ? 'Geçersiz Tarih'
+                                  : date.toLocaleDateString('tr-TR', {
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric'
+                                    });
+                              })()}
                             </span>
                           </td>
                           <td className="p-4">
@@ -721,26 +830,38 @@ Teslimat:
                           </td>
                           <td className="p-4">{user.email}</td>
                           <td className="p-4">
-                            <div className="flex items-center">
-                              <input
-                                type={showPassword[user.id] ? "text" : "password"}
-                                value={user.password || ''}
-                                disabled
-                                className="w-24 px-2 py-1 text-xs border rounded bg-gray-50 text-gray-700"
-                                style={{ fontFamily: 'monospace' }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword((prev: any) => ({ ...prev, [user.id]: !prev[user.id] }))}
-                                className="ml-2 text-gray-500 hover:text-gray-700"
-                                tabIndex={-1}
-                                aria-label="Şifreyi Göster/Gizle"
-                              >
-                                {showPassword[user.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                              </button>
+                            <div className="flex items-center gap-1.5">
+                              <div className="relative">
+                                <input
+                                  type={showPassword[user.id] ? "text" : "password"}
+                                  value={showPassword[user.id] ? (user.password || "••••••••") : "••••••••"}
+                                  readOnly
+                                  className="w-28 h-7 px-2 text-xs border rounded bg-gray-50 text-gray-700 font-mono"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword((prev) => ({ ...prev, [user.id]: !prev[user.id] }))}
+                                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                  tabIndex={-1}
+                                  aria-label="Şifreyi Göster/Gizle"
+                                >
+                                  {showPassword[user.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                </button>
+                              </div>
                             </div>
                           </td>
-                          <td className="p-4">{new Date(user.createdAt).toLocaleDateString('tr-TR')}</td>
+                          <td className="p-4">
+                            {user.createdAt ? 
+                              new Date(user.createdAt).toLocaleDateString('tr-TR', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : 
+                              'Tarih bilgisi yok'
+                            }
+                          </td>
                           <td className="p-4">
                             <div className="flex space-x-2">
                               <Button variant="outline" size="sm" onClick={() => handleDeleteUser(user.id)}>
@@ -835,13 +956,6 @@ Teslimat:
                     <div>
                       <label className="text-sm font-medium text-gray-600">Sosyal Medya Hesapları</label>
                       <div className="space-y-2 mt-2">
-                        {/* Debug: Tüm order verisini göster */}
-                        <details className="text-xs bg-gray-100 p-2 rounded">
-                          <summary>Debug: Order Data</summary>
-                          <pre className="mt-2 text-xs overflow-auto">
-                            {JSON.stringify(selectedOrder, null, 2)}
-                          </pre>
-                        </details>
 
 
                         {(selectedOrder.facebook && selectedOrder.facebook.trim() !== '') && (
@@ -1296,4 +1410,25 @@ Teslimat:
       </Dialog>
     </div>
   )
+}
+
+export default function AdminPage() {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Bir Hata Oluştu</h2>
+          <p className="text-gray-600">Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <AdminPageContent />
+    </div>
+  );
 }

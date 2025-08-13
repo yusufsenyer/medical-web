@@ -1,83 +1,164 @@
-# Website Builder Rails
+# MedicalWeb Pro
 
-Full-stack website builder application with Rails API backend and Next.js frontend.
+Hekimler için profesyonel web sitesi siparişleme platformu. Next.js frontend ve Rails API backend ile geliştirilmiştir.
 
-## Project Structure
+## 🚀 Hızlı Başlangıç
 
-```
-├── backend/          # Rails API-only backend
-├── frontend/         # Next.js frontend application
-├── README.md         # This file
-└── .gitignore        # Combined gitignore
-```
-
-## Quick Start
-
-### Prerequisites
-- Ruby 3.x
-- Rails 8.x
+### Gereksinimler
 - Node.js 18+
-- npm or yarn
+- Ruby 3.0+
+- npm veya yarn
 
-### Development Setup
+### Kurulum
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yusufsenyer/website_builder_rails.git
-   cd website_builder_rails
-   ```
-
-2. **Setup Backend (Rails API)**
-   ```bash
-   cd backend
-   bundle install
-   rails db:create db:migrate
-   rails server
-   ```
-   Backend will run on `http://localhost:3000`
-
-3. **Setup Frontend (Next.js)**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev -- --port 3001
-   ```
-   Frontend will run on `http://localhost:3001`
-
-## API Endpoints
-
-- Health Check: `GET /api/v1/health`
-- More endpoints will be documented as they are developed
-
-## Environment Variables
-
-### Backend (.env)
-```
-DATABASE_URL=sqlite3:storage/development.sqlite3
-RAILS_ENV=development
+1. **Repository'yi klonlayın**
+```bash
+git clone <repository-url>
+cd medical-web
 ```
 
-### Frontend (.env.local)
+2. **Backend'i kurun**
+```bash
+cd backend
+bundle install
+bin/rails db:create
+bin/rails db:migrate
+bin/rails server
 ```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api/v1
-NODE_ENV=development
+
+3. **Frontend'i kurun (yeni terminal)**
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-## Development
+4. **Tarayıcıda açın**
+- Frontend: http://localhost:3001
+- Backend API: http://localhost:3000
 
-- Backend API runs on port 3000
-- Frontend runs on port 3001
-- CORS is configured for cross-origin requests
-- API client is configured to use environment variables
+## 📋 Demo Hesaplar
 
-## Contributing
+### Frontend Admin
+- **E-posta**: `admin123@example.com`
+- **Şifre**: `admin123`
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Backend Admin
+- **E-posta**: `admin123@gmail.com`
+- **Şifre**: `admin123`
 
-## License
+## 🏗️ Proje Yapısı
 
-This project is licensed under the MIT License.
+```
+medical-web/
+├── backend/                 # Rails 8 API
+│   ├── app/
+│   │   ├── controllers/api/v1/
+│   │   └── models/
+│   ├── config/
+│   └── db/
+└── frontend/               # Next.js 13 App
+    ├── app/
+    ├── components/
+    ├── lib/
+    └── hooks/
+```
+
+## 🔧 Özellikler
+
+### Frontend (Next.js)
+- ✅ Kullanıcı kayıt/giriş sistemi
+- ✅ Admin paneli (sipariş yönetimi)
+- ✅ Müşteri dashboard'u
+- ✅ 5 adımlı sipariş formu
+- ✅ Responsive tasarım
+- ✅ Firebase entegrasyonu (opsiyonel)
+- ✅ Zustand state management
+
+### Backend (Rails API)
+- ✅ RESTful API endpoints
+- ✅ Kullanıcı yönetimi
+- ✅ Sipariş yönetimi (bellek içi)
+- ✅ CORS yapılandırması
+- ✅ SQLite veritabanı
+
+## 🛠️ Teknolojiler
+
+### Frontend
+- **Framework**: Next.js 13 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State**: Zustand
+- **Animations**: Framer Motion
+- **Forms**: React Hook Form + Zod
+- **Icons**: Lucide React
+
+### Backend
+- **Framework**: Rails 8.0.2
+- **Mode**: API-only
+- **Database**: SQLite
+- **CORS**: rack-cors
+- **Authentication**: Basit şifre kontrolü
+
+## 🔍 Sorun Giderme
+
+### Firestore Bağlantı Hatası
+Firebase konfigürasyonu yoksa uygulama demo modunda çalışır. Gerçek Firebase kullanmak için:
+
+1. `frontend/.env.local` dosyası oluşturun
+2. Firebase konfigürasyon bilgilerini ekleyin
+
+### CORS Hatası
+- Backend'in `http://localhost:3000`'de çalıştığından emin olun
+- Frontend'in `http://localhost:3001`'de çalıştığından emin olun
+
+### Port Çakışması
+Eğer portlar meşgulse:
+- Backend: `bin/rails server -p 3000`
+- Frontend: `npm run dev -- -p 3001`
+
+### Hydration Uyarısı
+Browser extension'larından gelen "bis_skin_checked" uyarısı bastırılmıştır.
+
+## 📚 Detaylı Dokümantasyon
+
+- [Frontend README](./frontend/README.md)
+- [Backend README](./backend/README.md)
+
+## 🚀 Production Deployment
+
+### Güvenlik Önlemleri
+Bu proje demo amaçlıdır. Production kullanımı için:
+
+1. **Backend**:
+   - bcrypt ile şifre hash'leme
+   - JWT token doğrulama
+   - Rate limiting
+   - Input validation
+
+2. **Frontend**:
+   - Environment variables
+   - HTTPS
+   - CSP headers
+
+### Deployment
+- **Frontend**: Vercel, Netlify
+- **Backend**: Heroku, Railway, DigitalOcean
+
+## 🤝 Katkıda Bulunma
+
+1. Fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit edin (`git commit -m 'Add amazing feature'`)
+4. Push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+## 📞 Destek
+
+Herhangi bir sorun veya öneriniz için:
+- GitHub Issues açın
+- Email: yusufsenyer@gmail.com
+
+---
+
+⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
