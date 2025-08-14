@@ -93,7 +93,7 @@ export default function CustomerDashboard() {
           name: contactName,
           phone: contactPhone,
           email: contactEmail || 'Belirtilmemiş',
-          message: contactMessage || '—'
+          message: `${contactMessage || '—'} (Sipariş ID: ${contactOrderId})`
         }
       }
 
