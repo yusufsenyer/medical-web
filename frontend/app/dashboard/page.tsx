@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -19,6 +23,7 @@ import {
   Eye,
   Download
 } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -34,6 +39,85 @@ export default function CustomerDashboard() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const { toast } = useToast()
+
+  // Contact Admin Modal State
+  const [isContactOpen, setIsContactOpen] = useState(false)
+  const [contactOrderId, setContactOrderId] = useState<string>('')
+  const [contactName, setContactName] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
+  const [contactEmail, setContactEmail] = useState('')
+  const [contactMessage, setContactMessage] = useState('')
+  const [isSendingContact, setIsSendingContact] = useState(false)
+
+  const EMAILJS_PUBLIC_KEY = 'qOZwShjgHLeBuUbJk'
+  const EMAILJS_TEMPLATE_ID = 'template_sz27jkh'
+  const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_jicp0ow'
+
+  const openContactForOrder = (orderId: string) => {
+    setContactOrderId(orderId)
+    setIsContactOpen(true)
+  }
+
+  const resetContactForm = () => {
+    setContactName('')
+    setContactPhone('')
+    setContactEmail('')
+    setContactMessage('')
+  }
+
+  const sendContactEmail = async () => {
+    if (!EMAILJS_SERVICE_ID) {
+      toast({ variant: 'destructive', title: 'E-posta yapılandırması eksik', description: 'Lütfen NEXT_PUBLIC_EMAILJS_SERVICE_ID ortam değişkenini ayarlayın.' })
+      return
+    }
+
+    if (!contactName.trim()) {
+      toast({ variant: 'destructive', title: 'Ad Soyad gerekli', description: 'Lütfen adınızı ve soyadınızı giriniz.' })
+      return
+    }
+
+    if (!contactPhone.trim()) {
+      toast({ variant: 'destructive', title: 'Telefon gerekli', description: 'Lütfen telefon numaranızı giriniz.' })
+      return
+    }
+
+    setIsSendingContact(true)
+    try {
+      const payload = {
+        service_id: EMAILJS_SERVICE_ID,
+        template_id: EMAILJS_TEMPLATE_ID,
+        user_id: EMAILJS_PUBLIC_KEY,
+        template_params: {
+          order_id: contactOrderId,
+          name: contactName,
+          phone: contactPhone,
+          email: contactEmail || 'Belirtilmemiş',
+          message: contactMessage || '—'
+        }
+      }
+
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        let detail = ''
+        try { detail = await res.text() } catch {}
+        throw new Error(detail || 'E-posta gönderilemedi')
+      }
+
+      toast({ title: 'Mesaj gönderildi', description: 'En kısa zamanda sizinle iletişime geçilecektir.' })
+      setIsContactOpen(false)
+      resetContactForm()
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: 'Gönderim hatası', description: e?.message || 'Bir hata oluştu' })
+    } finally {
+      setIsSendingContact(false)
+    }
+  }
 
   // Mount effect
   useEffect(() => {
@@ -195,7 +279,12 @@ export default function CustomerDashboard() {
           
           <div className="flex items-center space-x-4">
             <Button
-              onClick={() => router.push('/order')}
+              onClick={() => {
+                // Reset order step to 1 when starting new order
+                const { resetOrderStep } = useStore.getState()
+                resetOrderStep()
+                router.push('/order')
+              }}
               className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -333,6 +422,24 @@ export default function CustomerDashboard() {
                             <Globe className="h-4 w-4 mr-1" />
                             Web Sitemi Ziyaret Et
                           </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openContactForOrder(order.id as string)}
+                            className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </Button>
+                          {order.delivery_zip_url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(order.delivery_zip_url as string, '_blank')}
+                              className="text-teal-700 border-teal-200 hover:bg-teal-50"
+                            >
+                              <Download className="h-4 w-4 mr-1" /> ZIP'i Aç
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -383,10 +490,10 @@ export default function CustomerDashboard() {
                           <h3 className="font-semibold text-lg">
                             {order.siteName || `${order.customerName} Web Sitesi`}
                           </h3>
-                          <Badge className={getStatusColor(order.status)}>
+                          <Badge className={getStatusColor(order.status || '')}>
                             <div className="flex items-center space-x-1">
-                              {getStatusIcon(order.status)}
-                              <span>{getStatusText(order.status)}</span>
+                              {getStatusIcon(order.status || '')}
+                              <span>{getStatusText(order.status || '')}</span>
                             </div>
                           </Badge>
                         </div>
@@ -425,6 +532,29 @@ export default function CustomerDashboard() {
                           >
                             <Globe className="h-4 w-4 mr-1" />
                             Web Sitemi Gör
+                          </Button>
+                        )}
+
+                        {/* Download ZIP Button - Show if delivered and has ZIP */}
+                        {(order.status === 'delivered' || order.status === 'completed') && order.delivery_zip_url && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(order.delivery_zip_url as string, '_blank')}
+                            className="text-teal-700 border-teal-200 hover:bg-teal-50"
+                          >
+                            <Download className="h-4 w-4 mr-1" /> İndir
+                          </Button>
+                        )}
+
+                        {(order.status === 'delivered' || order.status === 'completed') && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openContactForOrder(order.id as string)}
+                            className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                          >
+                            Admin ile iletişime geç
                           </Button>
                         )}
 
@@ -661,6 +791,51 @@ export default function CustomerDashboard() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Admin ile iletişime geç Modal */}
+      <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Admin ile İletişime Geç</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {!EMAILJS_SERVICE_ID && (
+              <div className="text-sm text-red-600">
+                Uyarı: NEXT_PUBLIC_EMAILJS_SERVICE_ID ayarlı değil. Lütfen ortam değişkenini ekleyin.
+              </div>
+            )}
+            <div>
+              <Label className="text-sm">Sipariş ID</Label>
+              <Input value={contactOrderId} readOnly className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-sm">Adınız Soyadınız</Label>
+              <Input placeholder="Adınızı ve soyadınızı giriniz" value={contactName} onChange={e => setContactName(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-sm">Telefon Numaranız</Label>
+              <Input placeholder="+90 5xx xxx xx xx" value={contactPhone} onChange={e => setContactPhone(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-sm">Mail Adresiniz (Zorunlu Değildir)</Label>
+              <Input type="email" placeholder="ornek@email.com" value={contactEmail} onChange={e => setContactEmail(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-sm">Mesajınız</Label>
+              <Textarea placeholder="Durumunuz hakkında kısaca bilgi veriniz..." value={contactMessage} onChange={e => setContactMessage(e.target.value)} className="mt-1" />
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={sendContactEmail} disabled={isSendingContact}>
+                {isSendingContact ? (
+                  <span className="flex items-center"><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Gönderiliyor...</span>
+                ) : (
+                  'Mesaj Gönder'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

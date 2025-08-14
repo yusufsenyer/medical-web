@@ -34,7 +34,7 @@ export function Header() {
             <Globe className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-            MedicalWeb Pro
+            MedWebify
           </span>
         </Link>
 

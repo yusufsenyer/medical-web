@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       resources :orders, only: [:index, :show, :create, :update, :destroy] do
         member do
           put 'status', to: 'orders#update_status'
+          post 'delivery_zip', to: 'orders#upload_delivery_zip'
         end
       end
 

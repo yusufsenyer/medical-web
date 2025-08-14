@@ -1,6 +1,6 @@
-# MedicalWeb Pro
+# MedWebify
 
-Hekimler için profesyonel web sitesi siparişleme platformu. Next.js frontend ve Rails API backend ile geliştirilmiştir.
+Profesyonel web sitesi tasarım platformu. Next.js frontend ve Rails API backend ile geliştirilmiştir.
 
 ## 🚀 Hızlı Başlangıç
 

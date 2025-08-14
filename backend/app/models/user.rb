@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   before_save :set_default_role
   before_save :set_full_name
+  before_save :downcase_email
 
   # Virtual attribute for full name
   def full_name
@@ -30,5 +31,9 @@ class User < ApplicationRecord
 
   def set_full_name
     # This is handled by the full_name method
+  end
+
+  def downcase_email
+    self.email = self.email.to_s.strip.downcase
   end
 end

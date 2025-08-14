@@ -53,23 +53,26 @@ export function HeroSection() {
                 className="inline-flex items-center space-x-2 bg-teal-50 border border-teal-200 text-teal-700 px-4 py-2 rounded-full text-sm font-medium"
               >
                 <Rocket className="h-4 w-4" />
-                <span>Doktorlar İçin Özel Web Tasarım Platformu</span>
+                <span>Profesyonel Web Tasarım Platformu</span>
               </motion.div>
 
               {/* Main Heading */}
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-black leading-tight text-gray-900">
-                  Kliniğinizin
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
-                    Dijital Kimliği
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
+                    MedWebify
                   </span>
-                  Burada Başlar
+                  ile
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">
+                    Dijital Kimliğinizi
+                  </span>
+                  Oluşturun
                 </h1>
 
                 <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-                  Doktorlar için özel tasarlanmış web sitesi platformu.
-                  <span className="font-semibold text-gray-900"> Hasta odaklı tasarım</span>,
-                  profesyonel görünüm!
+                  Profesyonel web sitesi tasarım platformu.
+                  <span className="font-semibold text-gray-900"> Modern tasarım</span>,
+                  hızlı kurulum ve müşteri odaklı çözümler!
                 </p>
               </div>
 

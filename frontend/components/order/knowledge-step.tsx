@@ -7,11 +7,13 @@ import { z } from 'zod'
 import { useStore } from '@/lib/store'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { FileText, Lightbulb, Users } from 'lucide-react'
 
 const knowledgeSchema = z.object({
-  knowledge_text: z.string().min(10, 'En az 10 karakter girmelisiniz').max(1000, 'En fazla 1000 karakter girebilirsiniz')
+  knowledge_text: z.string().min(10, 'En az 10 karakter girmelisiniz').max(1000, 'En fazla 1000 karakter girebilirsiniz'),
+  slogan: z.string().max(150, 'En fazla 150 karakter girilebilir').optional().or(z.literal(''))
 })
 
 type KnowledgeData = z.infer<typeof knowledgeSchema>
@@ -26,7 +28,8 @@ export function KnowledgeStep({ onValidation }: KnowledgeStepProps) {
   const form = useForm<KnowledgeData>({
     resolver: zodResolver(knowledgeSchema),
     defaultValues: {
-      knowledge_text: currentOrder.knowledge_text || ''
+      knowledge_text: currentOrder.knowledge_text || '',
+      slogan: currentOrder.slogan || ''
     }
   })
 
@@ -51,6 +54,9 @@ export function KnowledgeStep({ onValidation }: KnowledgeStepProps) {
         console.log('Updating order with knowledge_text:', value.knowledge_text)
         updateOrder({ knowledge_text: value.knowledge_text })
       }
+      if (typeof value.slogan !== 'undefined') {
+        updateOrder({ slogan: value.slogan || '' })
+      }
     })
     return () => subscription.unsubscribe()
   }, [form, updateOrder])
@@ -66,6 +72,30 @@ export function KnowledgeStep({ onValidation }: KnowledgeStepProps) {
 
       <Form {...form}>
         <form className="space-y-6">
+          {/* Slogan (Opsiyonel) */}
+          <FormField
+            control={form.control}
+            name="slogan"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-semibold">Slogan (Opsiyonel)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Örn: Sağlığınız bizim için değerli"
+                    maxLength={150}
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e)
+                      updateOrder({ slogan: e.target.value })
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+                <div className="text-sm text-gray-500">Kısa ve akılda kalıcı bir cümle yazabilirsiniz. (Maks. 150 karakter)</div>
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="knowledge_text"

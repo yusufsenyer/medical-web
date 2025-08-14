@@ -94,7 +94,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
   return (
     <Card className="w-full max-w-2xl mx-auto backdrop-blur-sm bg-white/80 border-white/20 shadow-xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-teal-600 to-sky-600 bg-clip-text text-transparent">
           Profil Bilgileri
         </CardTitle>
         <p className="text-sm text-gray-600 text-center">
@@ -138,7 +138,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center space-x-2 text-blue-700">
+              <h3 className="text-lg font-semibold flex items-center space-x-2 text-teal-700">
                 <User className="h-5 w-5" />
                 <span>Kişisel Bilgiler</span>
               </h3>
@@ -154,7 +154,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                         <Input
                           placeholder="Adınızı girin"
                           {...field}
-                          className="transition-all duration-200 focus-visible:ring-ring"
+                          className="transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-300"
                           disabled={isLoading}
                         />
                       </FormControl>
@@ -173,7 +173,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                         <Input
                           placeholder="Soyadınızı girin"
                           {...field}
-                          className="transition-all duration-200 focus-visible:ring-ring"
+                          className="transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-300"
                           disabled={isLoading}
                         />
                       </FormControl>
@@ -186,7 +186,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center space-x-2 text-blue-700">
+              <h3 className="text-lg font-semibold flex items-center space-x-2 text-teal-700">
                 <Mail className="h-5 w-5" />
                 <span>İletişim Bilgileri</span>
               </h3>
@@ -204,7 +204,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                           type="email"
                           placeholder="ornek@email.com"
                           {...field}
-                          className="pl-10 transition-all duration-200 focus-visible:ring-ring"
+                          className="pl-10 transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-300"
                           disabled={isLoading}
                         />
                       </div>
@@ -227,7 +227,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                           type="tel"
                           placeholder="Telefon numaranız"
                           {...field}
-                          className="pl-10 transition-all duration-200 focus-visible:ring-ring"
+                          className="pl-10 transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-300"
                           disabled={isLoading}
                         />
                       </div>
@@ -240,7 +240,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
 
             {/* Professional Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center space-x-2 text-blue-700">
+              <h3 className="text-lg font-semibold flex items-center space-x-2 text-teal-700">
                 <Building className="h-5 w-5" />
                 <span>Profesyonel Bilgiler</span>
               </h3>
@@ -257,7 +257,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                         <Input
                           placeholder="Şirket adınız"
                           {...field}
-                          className="pl-10 transition-all duration-200 focus-visible:ring-ring"
+                          className="pl-10 transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-300"
                           disabled={isLoading}
                         />
                       </div>
@@ -277,7 +277,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                       <Textarea
                         placeholder="Kendiniz hakkında kısa bir açıklama yazın..."
                         {...field}
-                        className="min-h-[100px] transition-all duration-200 focus-visible:ring-ring"
+                        className="min-h-[100px] transition-all duration-200 focus-visible:ring-teal-500 focus-visible:border-teal-300"
                         disabled={isLoading}
                       />
                     </FormControl>
@@ -291,7 +291,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button
                 type="submit"
-                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                className="flex-1 bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-600 hover:to-sky-700"
                 disabled={isLoading || success || !hasChanges}
               >
                 {isLoading ? (
@@ -314,7 +314,7 @@ export function ProfileUpdateForm({ initialData, onSuccess, onError }: ProfileUp
                 variant="outline"
                 onClick={handleReset}
                 disabled={isLoading || !hasChanges}
-                className="flex-1 sm:flex-none border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                className="flex-1 sm:flex-none border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
               >
                 İptal Et
               </Button>

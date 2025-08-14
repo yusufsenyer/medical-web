@@ -114,7 +114,7 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
           Hesap Oluştur
         </CardTitle>
         <p className="text-sm text-gray-600 text-center">
-          MedicalWeb Pro'ya katılın ve kliniğinizin web sitesini oluşturun
+          MedWebify'a katılın ve web sitenizi oluşturun
         </p>
       </CardHeader>
       <CardContent>

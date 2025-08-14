@@ -1,6 +1,5 @@
 import * as React from "react"
-import { Toaster } from "react-hot-toast"
-import toast from "react-hot-toast"
+import { Toaster, toast } from "sonner"
 
 interface UseToast {
   toast: (props: { title: string; description?: string; variant?: "default" | "destructive" }) => void
@@ -19,5 +18,5 @@ export const useToast = (): UseToast => {
 }
 
 export function ToastProvider() {
-  return <Toaster />
+  return <Toaster richColors position="top-right" />
 }

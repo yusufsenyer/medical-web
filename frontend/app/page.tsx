@@ -6,7 +6,7 @@ import { PricingPreview } from '@/components/home/pricing-preview'
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <>
       <Header />
       <main>
         <HeroSection />
@@ -14,6 +14,6 @@ export default function Home() {
         <PricingPreview />
       </main>
       <Footer />
-    </div>
+    </>
   )
 }

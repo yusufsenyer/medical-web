@@ -1,6 +1,6 @@
-# MedicalWeb Pro Backend
+# MedWebify Backend
 
-Rails 8 API-only backend for MedicalWeb Pro platform.
+Rails 8 API-only backend for MedWebify platform.
 
 ## Kurulum
 

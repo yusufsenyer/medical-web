@@ -12,11 +12,11 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-teal-500 to-blue-600">
                 <span className="text-white font-bold">M</span>
               </div>
-              <span className="text-xl font-bold">MedicalWeb Pro</span>
+              <span className="text-xl font-bold">MedWebify</span>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Doktorlar için özel tasarlanmış profesyonel web siteleri.
-              Hasta odaklı tasarım ile kliniğinizi dijitalleştirin.
+              Profesyonel web sitesi tasarım platformu.
+              Modern tasarım ile işinizi dijitalleştirin.
             </p>
             <div className="flex space-x-4">
               <Facebook className="h-5 w-5 text-gray-400 hover:text-teal-500 cursor-pointer transition-colors" />
@@ -40,13 +40,13 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="font-semibold mb-4">Tıbbi Hizmetler</h3>
+            <h3 className="font-semibold mb-4">Web Tasarım Hizmetleri</h3>
             <ul className="space-y-2 text-sm">
-              <li><span className="text-gray-400">Klinik Web Tasarımı</span></li>
-              <li><span className="text-gray-400">Tıbbi SEO</span></li>
-              <li><span className="text-gray-400">Randevu Sistemi</span></li>
-              <li><span className="text-gray-400">Hasta Portal</span></li>
-              <li><span className="text-gray-400">Telemedicine</span></li>
+              <li><span className="text-gray-400">Kurumsal Web Tasarımı</span></li>
+              <li><span className="text-gray-400">E-ticaret Siteleri</span></li>
+              <li><span className="text-gray-400">Blog ve Portföy</span></li>
+              <li><span className="text-gray-400">Mobil Uyumluluk</span></li>
+              <li><span className="text-gray-400">SEO Optimizasyonu</span></li>
             </ul>
           </div>
 
@@ -56,7 +56,7 @@ export function Footer() {
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-teal-500" />
-                <span className="text-gray-400">info@medicalweb.com</span>
+                <span className="text-gray-400">info@medwebify.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-teal-500" />
@@ -72,7 +72,7 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 MedicalWeb Pro. Tüm hakları saklıdır.
+            © 2024 MedWebify. Tüm hakları saklıdır.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">

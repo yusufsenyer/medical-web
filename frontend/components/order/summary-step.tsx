@@ -16,7 +16,7 @@ interface SummaryStepProps {
 }
 
 export function SummaryStep({ onValidation }: SummaryStepProps) {
-  const { currentOrder, selectedFeatures, totalPrice, calculateTotal, setLoading, addOrder } = useStore()
+  const { currentOrder, selectedFeatures, totalPrice, calculateTotal, setLoading, addOrder, resetOrderPreserveContact } = useStore()
   const [isCompleting, setIsCompleting] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -57,7 +57,7 @@ export function SummaryStep({ onValidation }: SummaryStepProps) {
         customer_phone: currentOrder.customer_phone || '',
         profession: currentOrder.profession || '',
         website_name: currentOrder.website_name || '',
-        website_type: currentOrder.website_type,
+        website_type: (currentOrder.website_type || 'single-page') as 'single-page' | 'multi-page',
         target_audience: currentOrder.target_audience || '',
         purpose: currentOrder.purpose || '',
         color_palette: currentOrder.color_palette || '',
@@ -67,7 +67,9 @@ export function SummaryStep({ onValidation }: SummaryStepProps) {
         status: 'pending',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        knowledge_text: currentOrder.knowledge_text || currentOrder.special_requests || '',
+        knowledge_text: currentOrder.knowledge_text || '',
+        delivery_days: currentOrder.delivery_days || (((currentOrder.website_type || 'single-page') === 'multi-page') ? 7 : 5),
+        slogan: currentOrder.slogan || '',
         // Sosyal medya hesapları
         facebook: currentOrder.facebook || '',
         instagram: currentOrder.instagram || '',
@@ -80,6 +82,8 @@ export function SummaryStep({ onValidation }: SummaryStepProps) {
       const success = await addOrder(newOrder)
 
       if (success) {
+        // Önce formu yeni sipariş için sıfırla (iletişim bilgileri kalsın)
+        try { resetOrderPreserveContact() } catch {}
         // Başarı toast'u
         toast({
           variant: "default",
@@ -204,6 +208,12 @@ export function SummaryStep({ onValidation }: SummaryStepProps) {
               <div>
                 <span className="text-sm text-gray-500">Web Sitesi Adı</span>
                 <p className="font-medium text-lg">{currentOrder.website_name}</p>
+              </div>
+
+              {/* Slogan (Ödeme ve Özet ekranında göster) */}
+              <div>
+                <span className="text-sm text-gray-500">Slogan</span>
+                <p className="font-medium italic">{(currentOrder.slogan && currentOrder.slogan.trim() !== '') ? currentOrder.slogan : 'Slogan belirtilmemiş'}</p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">

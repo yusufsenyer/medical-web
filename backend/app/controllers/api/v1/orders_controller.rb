@@ -214,4 +214,28 @@ class Api::V1::OrdersController < ApplicationController
       errors: [e.message]
     }, status: :unprocessable_entity
   end
+
+  # Upload delivery ZIP to server and return a public URL
+  def upload_delivery_zip
+    order_id = params[:id]
+    if params[:file].nil?
+      render json: { success: false, message: 'No file provided' }, status: :bad_request and return
+    end
+
+    begin
+      uploaded_io = params[:file]
+      filename = uploaded_io.original_filename
+      uploads_dir = Rails.root.join('public', 'uploads', 'orders', order_id.to_s, 'delivery')
+      FileUtils.mkdir_p(uploads_dir)
+      path = uploads_dir.join(filename)
+      File.open(path, 'wb') do |file|
+        file.write(uploaded_io.read)
+      end
+
+      public_url = "/uploads/orders/#{order_id}/delivery/#{filename}"
+      render json: { success: true, url: public_url }
+    rescue => e
+      render json: { success: false, message: 'Upload failed', errors: [e.message] }, status: :unprocessable_entity
+    end
+  end
 end

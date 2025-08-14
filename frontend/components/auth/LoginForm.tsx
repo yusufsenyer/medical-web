@@ -253,7 +253,7 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
         <div className="mt-6 p-3 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200/50">
           <p className="text-xs font-medium mb-1 text-teal-800">Admin Hesap:</p>
           <p className="text-xs text-teal-700">
-            E-posta: admin123@example.com<br />
+            E-posta: admin123@gmail.com<br />
             Şifre: admin123
           </p>
         </div>

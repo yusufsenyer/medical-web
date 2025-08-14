@@ -1,6 +1,6 @@
-# MedicalWeb Pro Frontend
+# MedWebify Frontend
 
-Bu proje Next.js 13 ile geliştirilmiş hekimler için web sitesi siparişleme platformudur.
+Bu proje Next.js 13 ile geliştirilmiş profesyonel web sitesi tasarım platformudur.
 
 ## Kurulum
 

@@ -21,7 +21,7 @@ class Api::V1::AuthController < ApplicationController
       user = User.new(
         first_name: user_params[:firstName],
         last_name: user_params[:lastName],
-        email: user_params[:email],
+        email: user_params[:email].to_s.strip.downcase,
         password: user_params[:password],
         role: 'user',
         is_active: true,
@@ -96,7 +96,7 @@ class Api::V1::AuthController < ApplicationController
       self.class.ensure_admin_user
 
       # Find user by email
-      user = User.find_by(email: user_params[:email])
+      user = User.find_by(email: user_params[:email].to_s.strip.downcase)
 
       if user && user.password == user_params[:password] && user.is_active
         # Update last login
@@ -183,20 +183,26 @@ class Api::V1::AuthController < ApplicationController
   end
 
   def update_profile
-    user_params = params.require(:user).permit(:id, :firstName, :lastName, :email, :phone, :company, :bio)
+    user_params = params.require(:user).permit(:id, :firstName, :lastName, :email, :phone, :company, :bio, :password)
 
     begin
       user = User.find(user_params[:id])
 
       # Update user attributes
-      user.update!(
+      update_attrs = {
         first_name: user_params[:firstName],
         last_name: user_params[:lastName],
-        email: user_params[:email],
+        email: user_params[:email].to_s.strip.downcase,
         phone: user_params[:phone],
         company: user_params[:company],
         bio: user_params[:bio]
-      )
+      }
+      # Şifre gönderildiyse ve yeterince uzunsa güncelle
+      if user_params[:password].present? && user_params[:password].length >= 6
+        update_attrs[:password] = user_params[:password]
+      end
+
+      user.update!(update_attrs)
 
       render json: {
         success: true,

@@ -46,6 +46,7 @@ export interface Order {
   delivery_days: number
   status?: 'pending' | 'in-progress' | 'completed' | 'delivered' | string
   knowledge_text?: string
+  slogan?: string
   created_at?: string
   updated_at?: string
   instagram?: string
@@ -72,6 +73,8 @@ export interface Order {
   updatedAt?: string
   website_url?: string
   websiteUrl?: string
+  // Delivery assets
+  delivery_zip_url?: string
 }
 
 export interface User {
@@ -123,6 +126,7 @@ interface StoreState {
   nextStep: () => void
   prevStep: () => void
   resetOrder: () => void
+  resetOrderPreserveContact: () => void
   addFeature: (feature: Feature) => void
   removeFeature: (featureId: string) => void
   addPage: (pageId: string) => void
@@ -140,6 +144,8 @@ interface StoreState {
   loadAllOrders: () => Promise<boolean>
   updateUserRole: (userId: string, role: string) => Promise<boolean>
   deleteUser: (userId: string) => Promise<boolean>
+  setOrderStep: (step: number) => void
+  resetOrderStep: () => void
 
   // Auth actions
   setUser: (user: User | null) => void
@@ -185,9 +191,9 @@ export const useStore = create<StoreState>((set, get) => ({
     currentOrder: { ...state.currentOrder, ...data }
   })),
 
-  nextStep: () => set((state) => ({
-    orderStep: Math.min(state.orderStep + 1, 6)
-  })),
+  setOrderStep: (step: number) => set((state) => ({ orderStep: step })),
+  resetOrderStep: () => set((state) => ({ orderStep: 1 })),
+  nextStep: () => set((state) => ({ orderStep: Math.min(state.orderStep + 1, 5) })),
 
   prevStep: () => set((state) => ({
     orderStep: Math.max(state.orderStep - 1, 1)
@@ -195,6 +201,19 @@ export const useStore = create<StoreState>((set, get) => ({
 
   resetOrder: () => set(() => ({
     currentOrder: {},
+    orderStep: 1,
+    selectedFeatures: [],
+    selectedPages: [],
+    totalPrice: 0
+  })),
+
+  // Yeni sipariş başlatırken ad, soyad, e-mail kalsın; diğer alanlar sıfırlansın
+  resetOrderPreserveContact: () => set((state) => ({
+    currentOrder: {
+      customer_name: state.currentOrder.customer_name,
+      customer_surname: state.currentOrder.customer_surname,
+      customer_email: state.currentOrder.customer_email,
+    },
     orderStep: 1,
     selectedFeatures: [],
     selectedPages: [],
@@ -351,6 +370,7 @@ export const useStore = create<StoreState>((set, get) => ({
             delivery_days: data.delivery_days || data.deliveryDays || 0,
             status: data.status || 'pending',
             knowledge_text: data.knowledge_text || data.specialRequests || '',
+            slogan: data.slogan || '',
             created_at: data.created_at || data.createdAt || '',
             updated_at: data.updated_at || data.updatedAt || '',
             instagram: data.instagram || '',
@@ -449,16 +469,44 @@ export const useStore = create<StoreState>((set, get) => ({
 
   deleteUser: async (userId: string) => {
     try {
-      // Firestore'dan kullanıcıyı sil
-      const { db, collection, doc, deleteDoc } = await import('./firebase')
+      // Firestore'dan kullanıcıyı silmeden önce e-postasını al
+      const { db, doc, getDoc, deleteDoc } = await import('./firebase')
       const userRef = doc(db as any, 'users', userId)
+      const snap = await getDoc(userRef)
+      const email = (snap.exists() ? (snap.data() as any).email : '') as string
+
+      // Firestore'dan kullanıcıyı sil
       await deleteDoc(userRef)
-      
+
+      // Backend'te kullanıcıyı pasif hale getir (eşleşen e-posta üzerinden)
+      if (email) {
+        try {
+          const searchParams = new URLSearchParams({ search: email })
+          const resp = await fetch(`${API_BASE_URL}/users?${searchParams.toString()}`, {
+            headers: { 'Content-Type': 'application/json' }
+          })
+          if (resp.ok) {
+            const data = await resp.json()
+            const backendUsers = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []
+            const found = backendUsers.find((u: any) => (u.email || '').toLowerCase() === email.toLowerCase())
+            if (found?.id) {
+              await fetch(`${API_BASE_URL}/users/${found.id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user: { isActive: false } })
+              })
+            }
+          }
+        } catch (e) {
+          console.warn('Backend user deactivation skipped:', e)
+        }
+      }
+
       // Local state'den kullanıcıyı kaldır
       set((state) => ({
         users: state.users.filter(user => user.id !== userId)
       }))
-      
+
       return true
     } catch (error) {
       throw error
@@ -469,99 +517,125 @@ export const useStore = create<StoreState>((set, get) => ({
 
   calculateTotal: () => {
     const state = get()
-    const basePrice = state.currentOrder.website_type === 'single-page' ? 1999 : 3999
-    const featuresPrice = state.selectedFeatures.reduce((sum, feature) => sum + feature.price, 0)
-
-    // Calculate pages price for multi-page websites
-    let pagesPrice = 0
-    if (state.currentOrder.website_type === 'multi-page') {
-      // Import PAGE_OPTIONS here to avoid circular dependency
-      const PAGE_OPTIONS = [
-        { id: 'about', price: 200 }, { id: 'services', price: 300 }, { id: 'pricing', price: 250 },
-        { id: 'privacy', price: 150 }, { id: 'news', price: 400 }, { id: 'success', price: 350 },
-        { id: 'career', price: 300 }, { id: 'store', price: 800 }, { id: 'events', price: 400 },
-        { id: 'forum', price: 600 }, { id: 'chat', price: 500 }, { id: 'education', price: 700 },
-        { id: 'locator', price: 450 }, { id: 'appointment', price: 600 }, { id: 'helpdesk', price: 550 }
-      ]
-
-      pagesPrice = state.selectedPages.reduce((sum, pageId) => {
-        const page = PAGE_OPTIONS.find(p => p.id === pageId)
-        return sum + (page?.price || 0)
-      }, 0)
-    }
-
-    const totalPrice = basePrice + featuresPrice + pagesPrice
-
-    // Only update if price actually changed
-    if (state.totalPrice !== totalPrice) {
-      set({ totalPrice })
-
-      // Update order with calculated total and selected pages
-      set((state) => ({
-        currentOrder: {
-          ...state.currentOrder,
-          total_price: totalPrice,
-          selected_pages: state.selectedPages
-        }
-      }))
-    }
+    const featuresTotal = (state.selectedFeatures || []).reduce((sum, f) => sum + (f.price || 0), 0)
+    set(() => ({ totalPrice: featuresTotal }))
   },
 
   addOrder: async (order) => {
-    set((state) => ({ isLoading: true }))
-
+    set(() => ({ isLoading: true }))
     try {
-      // Call Rails backend API
+      const token = get().auth.token
+      const payload = {
+        order: {
+          website_name: order.website_name || '',
+          customer_name: order.customer_name || '',
+          customer_surname: order.customer_surname || '',
+          customer_email: order.customer_email || '',
+          customer_phone: order.customer_phone || '',
+          profession: order.profession || '',
+          website_type: order.website_type || 'single-page',
+          color_palette: order.color_palette || '',
+          target_audience: order.target_audience || '',
+          purpose: order.purpose || '',
+          additional_features: order.additional_features || [],
+          selected_pages: order.selected_pages || [],
+          total_price: order.total_price || get().totalPrice || 0,
+          delivery_days: order.delivery_days || 7,
+          knowledge_text: order.knowledge_text || '',
+          slogan: order.slogan || '',
+          instagram: order.instagram || '',
+          facebook: order.facebook || '',
+          twitter: order.twitter || '',
+          linkedin: order.linkedin || '',
+          youtube: order.youtube || ''
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({
-          order: {
-            // Customer info
-            customer_name: `${order.customer_name} ${order.customer_surname}`.trim(),
-            customer_email: order.customer_email,
-            customer_phone: order.customer_phone || '',
-            profession: order.profession || '',
-
-            // Website details
-            website_name: order.website_name || '',
-            website_type: order.website_type,
-            target_audience: order.target_audience || '',
-            purpose: order.purpose || '',
-            color_palette: order.color_palette || '',
-
-            // Pages and features
-            selected_pages: JSON.stringify(order.selected_pages || []),
-            selected_features: JSON.stringify(order.additional_features?.map(f => ({ id: f, name: f, price: 0 })) || []),
-
-            // Pricing
-            base_price: order.total_price,
-            total_price: order.total_price,
-
-            // Additional info
-            special_requests: order.knowledge_text || '',
-            delivery_days: order.delivery_days || 7,
-            status: 'pending'
-          }
-        }),
+        body: JSON.stringify(payload)
       })
 
+      const data = await response.json().catch(() => ({} as any))
       if (response.ok) {
-        const data = await response.json()
+        try {
+          const { db, collection, addDoc } = await import('./firebase')
+          const ordersRef = collection(db as any, 'orders')
+          await addDoc(ordersRef, {
+            website_name: payload.order.website_name,
+            customer_name: payload.order.customer_name,
+            customer_surname: payload.order.customer_surname,
+            customer_email: payload.order.customer_email,
+            customer_phone: payload.order.customer_phone,
+            profession: payload.order.profession,
+            website_type: payload.order.website_type,
+            color_palette: payload.order.color_palette,
+            target_audience: payload.order.target_audience,
+            purpose: payload.order.purpose,
+            additional_features: payload.order.additional_features,
+            selected_pages: payload.order.selected_pages,
+            total_price: payload.order.total_price,
+            delivery_days: payload.order.delivery_days,
+            status: 'pending',
+            knowledge_text: payload.order.knowledge_text,
+            slogan: payload.order.slogan,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            instagram: payload.order.instagram,
+            facebook: payload.order.facebook,
+            twitter: payload.order.twitter,
+            linkedin: payload.order.linkedin,
+            youtube: payload.order.youtube
+          })
+        } catch (firebaseError) {
+          console.error('Failed to save order to Firebase:', firebaseError)
+        }
+
+        const newOrder = {
+          id: (data?.data?.id || data?.id || Date.now()).toString(),
+          website_name: payload.order.website_name,
+          customer_name: payload.order.customer_name,
+          customer_surname: payload.order.customer_surname,
+          customer_email: payload.order.customer_email,
+          customer_phone: payload.order.customer_phone,
+          profession: payload.order.profession,
+          website_type: payload.order.website_type,
+          color_palette: payload.order.color_palette,
+          target_audience: payload.order.target_audience,
+          purpose: payload.order.purpose,
+          additional_features: payload.order.additional_features,
+          selected_pages: payload.order.selected_pages,
+          total_price: payload.order.total_price,
+          base_price: payload.order.total_price,
+          delivery_days: payload.order.delivery_days,
+          status: 'pending',
+          knowledge_text: payload.order.knowledge_text,
+          slogan: payload.order.slogan,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          facebook: payload.order.facebook,
+          instagram: payload.order.instagram,
+          twitter: payload.order.twitter,
+          linkedin: payload.order.linkedin,
+          youtube: payload.order.youtube,
+          website_url: ''
+        }
 
         set((state) => {
-          const newOrders = [...state.orders, data] // Admin orders
-          const newUserOrders = [...state.userOrders, data] // User orders
-          const totalRevenue = newOrders.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0)
+          const newOrders = [...state.orders, newOrder]
+          const newUserOrders = [...state.userOrders, newOrder]
+          const totalRevenue = newOrders.reduce((sum, o) => sum + (o.total_price || 0), 0)
           const pendingOrders = newOrders.filter(o => o.status === 'pending').length
           const inProgressOrders = newOrders.filter(o => o.status === 'in_progress').length
           const completedOrders = newOrders.filter(o => o.status === 'completed').length
 
           return {
-            orders: newOrders, // Admin orders
-            userOrders: newUserOrders, // User orders
+            orders: newOrders,
+            userOrders: newUserOrders,
             isLoading: false,
             analytics: {
               totalOrders: newOrders.length,
@@ -575,11 +649,11 @@ export const useStore = create<StoreState>((set, get) => ({
         })
         return true
       } else {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Sipariş oluşturulamadı')
+        const errorMsg = (data && (data.message || data.error)) || 'Sipariş oluşturulamadı'
+        throw new Error(errorMsg)
       }
     } catch (error) {
-      set((state) => ({ isLoading: false }))
+      set(() => ({ isLoading: false }))
       throw error
     }
   },
@@ -609,8 +683,10 @@ export const useStore = create<StoreState>((set, get) => ({
     set((state) => ({ auth: { ...state.auth, isLoading: true } }))
 
     try {
+      const normalizedEmail = (email || '').trim().toLowerCase()
+      const normalizedPassword = (password || '').trim()
       // Check mock users first
-      const mockUser = MOCK_USERS.find(u => u.email === email && u.password === password)
+      const mockUser = MOCK_USERS.find(u => u.email.toLowerCase() === normalizedEmail && u.password === normalizedPassword)
 
       if (mockUser) {
         // Mock login success
@@ -660,12 +736,14 @@ export const useStore = create<StoreState>((set, get) => ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user: { email, password } }),
+        body: JSON.stringify({ user: { email: normalizedEmail, password: normalizedPassword } }),
       })
+      let data: any = null
+      try {
+        data = await response.json()
+      } catch {}
 
-      const data = await response.json()
-
-      if (data.success) {
+      if (response.ok && data?.success) {
         const user: User = {
           id: data.data.user.id,
           email: data.data.user.email,
@@ -704,9 +782,57 @@ export const useStore = create<StoreState>((set, get) => ({
         }))
 
         return true
-      } else {
-        throw new Error(data.message || 'Giriş başarısız')
       }
+
+      // Backend başarısızsa Firebase üzerinden fallback (env ile kapatılabilir)
+      if (process.env.NEXT_PUBLIC_ALLOW_FIREBASE_FALLBACK === 'true') {
+        try {
+          const { db, collection, getDocs, query, where } = await import('./firebase')
+          const usersRef = collection(db as any, 'users')
+          const q = query(usersRef, where('email', '==', normalizedEmail))
+          const snap = await getDocs(q)
+          const doc = snap.docs[0]
+          const u = doc ? (doc.data() as any) : null
+          if (u && (u.password === normalizedPassword)) {
+            const user: User = {
+              id: doc.id,
+              email: u.email,
+              firstName: u.firstName || '',
+              lastName: u.lastName || '',
+              fullName: u.fullName || `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+              role: u.role || 'customer',
+              phone: u.phone || '',
+              company: u.company || '',
+              bio: u.bio || '',
+              isEmailVerified: !!u.isEmailVerified,
+              createdAt: u.createdAt || new Date().toISOString(),
+              updatedAt: u.updatedAt || new Date().toISOString()
+            }
+
+            const token = 'firebase-fallback-token-' + Date.now()
+            localStorage.setItem('auth-token', token)
+            localStorage.setItem('user-data', JSON.stringify(user))
+            localStorage.setItem('has-logged-in-before', 'true')
+
+            set((state) => ({
+              auth: { user, token, isAuthenticated: true, isLoading: false }
+            }))
+
+            // Backend'e yoksa senkron kayıt dene (bloklamadan)
+            try {
+              await fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user: { firstName: user.firstName || 'User', lastName: user.lastName || 'User', email: user.email, password: normalizedPassword } })
+              })
+            } catch {}
+
+            return true
+          }
+        } catch {}
+      }
+
+      throw new Error((data && data.message) || 'Giriş başarısız')
     } catch (error) {
       set((state) => ({
         auth: { ...state.auth, isLoading: false }
@@ -725,13 +851,24 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       console.log('Sending signup request:', userData);
 
+      // Sadece gerekli alanları gönder + normalize
+      const normalizedEmail = (userData.email || '').trim().toLowerCase()
+      const normalizedPassword = (userData.password || '').trim()
+
+      const backendUserData = {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: normalizedEmail,
+        password: normalizedPassword
+      }
+
       // Call Rails backend API
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user: userData }),
+        body: JSON.stringify({ user: backendUserData }),
       })
 
       const data = await response.json()
@@ -769,9 +906,79 @@ export const useStore = create<StoreState>((set, get) => ({
           }
         }))
 
+        // Also add user to Firebase Firestore
+        try {
+          const { db, collection, addDoc, query, where, getDocs } = await import('./firebase')
+          const usersRef = collection(db as any, 'users')
+          const q = query(usersRef, where('email', '==', user.email))
+          const querySnapshot = await getDocs(q)
+
+          if (querySnapshot.empty) {
+            await addDoc(usersRef, {
+              id: user.id,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              fullName: user.fullName,
+              role: user.role,
+              phone: user.phone || '',
+              company: user.company || '',
+              bio: user.bio || '',
+              password: normalizedPassword,
+              isEmailVerified: user.isEmailVerified,
+              createdAt: user.createdAt,
+              updatedAt: user.updatedAt
+            })
+            console.log('User added to Firebase Firestore:', user.email)
+          } else {
+            console.log('User already exists in Firebase Firestore, skipping add:', user.email)
+          }
+        } catch (firebaseError) {
+          console.error('Failed to add user to Firebase Firestore:', firebaseError)
+          // Do not block signup if Firebase fails
+        }
+
         return true
       } else {
-        throw new Error(data.message || 'Kayıt başarısız')
+        // Eğer e-posta zaten alınmışsa, otomatik olarak giriş dene
+        const msg = `${data.message || ''} ${(data.errors || []).join(' ')}`.toLowerCase()
+        if (msg.includes('email has already been taken') || msg.includes('email already exists')) {
+          try {
+            const loginResp = await fetch(`${API_BASE_URL}/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user: { email: normalizedEmail, password: normalizedPassword } })
+            })
+            const loginData = await loginResp.json().catch(() => ({}))
+            if (loginResp.ok && loginData?.success) {
+              const user: User = {
+                id: loginData.data.user.id,
+                email: loginData.data.user.email,
+                firstName: loginData.data.user.firstName || '',
+                lastName: loginData.data.user.lastName || '',
+                fullName: loginData.data.user.fullName || `${loginData.data.user.firstName} ${loginData.data.user.lastName}`,
+                role: loginData.data.user.role,
+                phone: loginData.data.user.phone || '',
+                company: loginData.data.user.company || '',
+                bio: loginData.data.user.bio || '',
+                isEmailVerified: true,
+                createdAt: loginData.data.user.createdAt || new Date().toISOString(),
+                updatedAt: loginData.data.user.updatedAt || new Date().toISOString()
+              }
+              const token = loginData.data.token || `fake-token-${user.id}`
+              localStorage.setItem('auth-token', token)
+              localStorage.setItem('user-data', JSON.stringify(user))
+              localStorage.setItem('has-logged-in-before', 'true')
+              set((state) => ({ auth: { user, token, isAuthenticated: true, isLoading: false } }))
+              return true
+            }
+          } catch {}
+          // Kullanıcıya daha açıklayıcı mesaj göster
+          throw new Error('Bu e-posta zaten kayıtlı. Lütfen giriş yapın.')
+        }
+        // Diğer hatalar
+        const errorMsg = (data.errors && data.errors.length > 0) ? data.errors[0] : (data.message || 'Kayıt başarısız')
+        throw new Error(errorMsg)
       }
     } catch (error) {
       set((state) => ({
@@ -879,6 +1086,7 @@ export const useStore = create<StoreState>((set, get) => ({
           delivery_days: data.delivery_days || data.deliveryDays || 0,
           status: data.status || '',
           knowledge_text: data.knowledge_text || data.specialRequests || '',
+          slogan: data.slogan || '',
           created_at: data.created_at || data.createdAt || new Date().toISOString(),
           updated_at: data.updated_at || data.updatedAt || new Date().toISOString(),
           instagram: data.instagram || '',
@@ -886,7 +1094,8 @@ export const useStore = create<StoreState>((set, get) => ({
           twitter: data.twitter || '',
           linkedin: data.linkedin || '',
           youtube: data.youtube || '',
-          website_url: data.website_url || data.websiteUrl || ''
+          website_url: data.website_url || data.websiteUrl || '',
+          delivery_zip_url: data.delivery_zip_url || ''
         }
       })
       set((state) => ({ orders }))

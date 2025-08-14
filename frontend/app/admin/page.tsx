@@ -39,8 +39,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PAGE_OPTIONS } from '@/lib/constants'
 import { useAuth } from '@/hooks/use-auth'
-import { useStore } from '@/lib/store'
+import { useStore, type Order } from '@/lib/store'
 import { generateOrderPDF, generateAllOrdersPDF } from '@/lib/pdf-utils'
+import { AdminCharts } from '@/components/charts/AdminCharts'
 
 interface Analytics {
   totalRevenue: number;
@@ -49,42 +50,7 @@ interface Analytics {
   completedOrders: number;
 }
 
-interface Order {
-  id: string;
-  website_name?: string;
-  siteName?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'delivered';
-  total_price: number;
-  totalPrice?: number;
-  created_at: string;
-  createdAt?: string;
-  customer_name?: string;
-  customer_surname?: string;
-  customerName?: string;
-  customerSurname?: string;
-  email?: string;
-  customer_email?: string;
-  customerEmail?: string;
-  customer_phone?: string;
-  customerPhone?: string;
-  website_type?: string;
-  websiteType?: string;
-  notes?: string;
-  facebook?: string;
-  instagram?: string;
-  twitter?: string;
-  linkedin?: string;
-  youtube?: string;
-  profession?: string;
-  selected_pages?: string[] | string;
-  selectedPages?: string[] | string;
-  additional_features?: any[];
-  selected_features?: any[];
-  basePrice?: number;
-  deliveryDays?: number;
-  specialRequests?: string;
-  updatedAt?: string;
-}
+
 
 function AdminPageContent() {
   const router = useRouter()
@@ -98,12 +64,16 @@ function AdminPageContent() {
   const [websiteUrl, setWebsiteUrl] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
   const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState('')
+  const [deliveryZipFile, setDeliveryZipFile] = useState<File | null>(null)
+  const [deliveryZipUrl, setDeliveryZipUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [refreshInterval, setRefreshInterval] = useState(30) // seconds
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({})
+
+
 
   // Mount effect
   useEffect(() => {
@@ -195,58 +165,166 @@ function AdminPageContent() {
       })
 
       if (response.ok) {
+        // Backend knows this order - update it there and also sync to Firestore
+        try {
+          const { db, doc, updateDoc } = await import('@/lib/firebase')
+          const orderRef = doc(db as any, 'orders', orderId)
+          const updatePayload: any = {
+            status: newStatus,
+            website_url: websiteUrl || null,
+            admin_notes: adminNotes || null,
+            updated_at: new Date().toISOString()
+          }
+          
+          // Upload ZIP to backend if provided
+          if (deliveryZipFile) {
+            const form = new FormData()
+            form.append('file', deliveryZipFile)
+            const up = await fetch(`http://localhost:3000/api/v1/orders/${orderId}/delivery_zip`, {
+              method: 'POST',
+              body: form
+            })
+            if (up.ok) {
+              const res = await up.json()
+              updatePayload.delivery_zip_url = res.url
+              setDeliveryZipUrl(res.url)
+            }
+          }
+          
+          await updateDoc(orderRef, updatePayload)
+        } catch (e) {
+          console.error('Firestore update after backend OK failed:', e)
+        }
+
         updateOrderStatus(orderId, newStatus)
-        // Reset form fields
         setWebsiteUrl('')
         setAdminNotes('')
         setEstimatedDeliveryDate('')
-        // Refresh data
+        setDeliveryZipFile(null)
         await refreshData()
       } else {
-        console.error('Failed to update order status')
+        // Backend doesn't know this order (404) - update Firestore directly
+        if (response.status === 404) {
+          try {
+            const { db, doc, updateDoc, setDoc, getDoc } = await import('@/lib/firebase')
+            const orderRef = doc(db as any, 'orders', orderId)
+            
+            // Ensure project meta exists
+            const metaRef = doc(db as any, `orders/${orderId}/project/meta`)
+            const metaSnap = await getDoc(metaRef)
+            if (!metaSnap.exists()) {
+              await setDoc(metaRef, {
+                html: "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1' /><title>MedWebify</title></head><body><main class='container'><h1>Proje</h1><p>İçeriğinizi sol panelden düzenleyin.</p></main></body></html>",
+                css: "body{font-family:ui-sans-serif,system-ui,sans-serif}",
+                js: "console.log('MedWebify project ready')",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+            }
+            
+            const updatePayload: any = {
+              status: newStatus,
+              website_url: websiteUrl || null,
+              admin_notes: adminNotes || null,
+              updated_at: new Date().toISOString()
+            }
+            
+            // Upload ZIP via backend to avoid Firebase CORS
+            if (deliveryZipFile) {
+              const form = new FormData()
+              form.append('file', deliveryZipFile)
+              const up = await fetch(`http://localhost:3000/api/v1/orders/${orderId}/delivery_zip`, {
+                method: 'POST',
+                body: form
+              })
+              if (up.ok) {
+                const res = await up.json()
+                updatePayload.delivery_zip_url = res.url
+                setDeliveryZipUrl(res.url)
+              }
+            }
+            
+            await updateDoc(orderRef, updatePayload)
+            updateOrderStatus(orderId, newStatus)
+            setWebsiteUrl('')
+            setAdminNotes('')
+            setEstimatedDeliveryDate('')
+            setDeliveryZipFile(null)
+            await refreshData()
+          } catch (fbErr) {
+            console.error('Firestore status update failed:', fbErr)
+            alert('Sipariş güncellenirken hata oluştu. Lütfen tekrar deneyin.')
+          }
+        } else {
+          console.error('Failed to update order status:', response.status, response.statusText)
+          alert(`Sipariş güncellenemedi: ${response.status} ${response.statusText}`)
+        }
       }
     } catch (error) {
       console.error('Error updating order status:', error)
+      alert('Sipariş güncellenirken beklenmeyen hata oluştu.')
     }
   }
 
   const handleDownloadPDF = (order: any) => {
     // Create simple text content for download
+    const fullName = (order.customer_name || order.customerName || `${order.firstName || ''} ${order.lastName || ''}` || '').trim() || 'Belirtilmemiş'
+    const email = order.customer_email || order.customerEmail || order.email || 'Belirtilmemiş'
+    const phone = order.customer_phone || order.customerPhone || order.phone || 'Belirtilmemiş'
+    const siteName = order.website_name || order.siteName || 'Belirtilmemiş'
+    const websiteType = order.website_type || order.websiteType || 'Belirtilmemiş'
+    const targetAudience = order.target_audience || order.targetAudience || 'Belirtilmemiş'
+    const purpose = order.purpose || 'Belirtilmemiş'
+    const colorPalette = order.color_palette || order.colorPalette || 'Belirtilmemiş'
+    const selectedPages = order.selected_pages || order.selectedPages
+    const selectedFeatures = order.additional_features || order.selectedFeatures
+    const basePrice = order.base_price || order.basePrice || order.totalPrice || 0
+    const totalPrice = order.total_price || order.totalPrice || 0
+    const specialRequests = order.knowledge_text || order.specialRequests || 'Özel istek belirtilmemiş'
+    const slogan = order.slogan || 'Slogan belirtilmemiş'
+    const deliveryDays = order.delivery_days || order.deliveryDays || 'Belirtilmemiş'
+    const status = order.status || 'Belirtilmemiş'
+    const createdAt = order.created_at || order.createdAt
+    const updatedAt = order.updated_at || order.updatedAt || order.created_at || order.createdAt
+    const createdAtStr = createdAt ? new Date(createdAt).toLocaleDateString('tr-TR') : 'Belirtilmemiş'
+    const updatedAtStr = updatedAt ? new Date(updatedAt).toLocaleDateString('tr-TR') : 'Belirtilmemiş'
+
     const pdfContent = `
 SIPARIŞ DETAYLARI
-================
+=================
 
 Müşteri Bilgileri:
-- Ad Soyad: ${order.customerName || 'Belirtilmemiş'}
-- E-posta: ${order.email || 'Belirtilmemiş'}
-- Telefon: ${order.phone || 'Belirtilmemiş'}
+- Ad Soyad: ${fullName}
+- E-posta: ${email}
+- Telefon: ${phone}
 - Meslek: ${order.profession || 'Belirtilmemiş'}
 
 Proje Bilgileri:
-- Site Adı: ${order.siteName || 'Belirtilmemiş'}
-- Site Türü: ${order.websiteType || 'Belirtilmemiş'}
-- Hedef Kitle: ${order.targetAudience || 'Belirtilmemiş'}
-- Amaç: ${order.purpose || 'Belirtilmemiş'}
-- Renk Paleti: ${order.colorPalette || 'Belirtilmemiş'}
+- Site Adı: ${siteName}
+- Site Türü: ${websiteType}
+- Hedef Kitle: ${targetAudience}
+- Amaç: ${purpose}
+- Renk Paleti: ${colorPalette}
+- Slogan: ${slogan}
 
 Seçilen Sayfalar:
-${order.selectedPages ? order.selectedPages.map((page: string) => `- ${page}`).join('\n') : 'Belirtilmemiş'}
+${selectedPages ? selectedPages.map((page: string) => `- ${page}`).join('\n') : 'Belirtilmemiş'}
 
 Seçilen Özellikler:
-${order.selectedFeatures ? order.selectedFeatures.map((feature: any) => `- ${typeof feature === 'string' ? feature : feature.name || feature.id}: ${feature.price || 0}₺`).join('\n') : 'Belirtilmemiş'}
+${selectedFeatures ? selectedFeatures.map((feature: any) => `- ${typeof feature === 'string' ? feature : feature.name || feature.id}: ${feature.price || 0}₺`).join('\n') : 'Belirtilmemiş'}
 
 Fiyat Bilgileri:
-- Temel Fiyat: ${order.basePrice || order.totalPrice || 0}₺
-- Toplam Fiyat: ${order.totalPrice || 0}₺
+- Temel Fiyat: ${basePrice}₺
+- Toplam Fiyat: ${totalPrice}₺
 
 Özel İstekler:
-${order.specialRequests || 'Özel istek belirtilmemiş'}
+${specialRequests}
 
 Teslimat:
-- Teslimat Süresi: ${order.deliveryDays || 'Belirtilmemiş'} gün
-- Durum: ${order.status || 'Belirtilmemiş'}
-- Sipariş Tarihi: ${new Date(order.createdAt).toLocaleDateString('tr-TR')}
-- Güncelleme Tarihi: ${new Date(order.updatedAt || order.createdAt).toLocaleDateString('tr-TR')}
+- Teslimat Süresi: ${deliveryDays} gün
+- Durum: ${status}
+- Sipariş Tarihi: ${createdAtStr}
+- Güncelleme Tarihi: ${updatedAtStr}
     `
 
     // Create and download file
@@ -254,7 +332,7 @@ Teslimat:
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `siparis-${order.id}-${(order.customerName || 'unknown').replace(/\s+/g, '-')}.txt`
+    link.download = `siparis-${order.id}-${(fullName || 'unknown').replace(/\s+/g, '-')}.txt`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -617,40 +695,8 @@ Teslimat:
               </div>
             )}
 
-            {/* Recent Orders */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Son Siparişler</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {orders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">
-                          {order.website_name || `${getCustomerName(order)} Web Sitesi`}
-                        </h4>
-                        <Badge className={getStatusColor(order.status || 'pending')}>
-                          {getStatusText(order.status || 'pending')}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="font-semibold">₺{(order.total_price || 0).toLocaleString('tr-TR')}</span>
-                        <span className="text-sm text-gray-600">
-                          {(() => {
-                            const date = order.created_at ? new Date(order.created_at) : new Date();
-                            return !isNaN(date.getTime()) 
-                              ? date.toLocaleDateString('tr-TR')
-                              : 'Geçersiz Tarih';
-                          })()}
-                        </span>
-                        <p className="font-medium">{getCustomerName(order)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Modern ApexCharts Dashboard */}
+            <AdminCharts orders={orders} users={users} />
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-6">
@@ -695,25 +741,34 @@ Teslimat:
 
 
             {/* Orders Table */}
-            <Card>
+            <Card className="overflow-hidden border-0 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-teal-50 to-blue-50 border-b border-teal-100">
+                <CardTitle className="flex items-center space-x-2 text-teal-800">
+                  <Package className="h-5 w-5" />
+                  <span>Sipariş Yönetimi</span>
+                  <Badge variant="secondary" className="ml-auto">
+                    {filteredOrders.length} Sipariş
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-teal-100/50 to-blue-100/50">
                       <tr>
-                        <th className="text-left p-4 font-semibold">Sipariş</th>
-                        <th className="text-left p-4 font-semibold">Müşteri</th>
-                        <th className="text-left p-4 font-semibold">Telefon</th>
-                        <th className="text-left p-4 font-semibold">Tür</th>
-                        <th className="text-left p-4 font-semibold">Durum</th>
-                        <th className="text-left p-4 font-semibold">Tutar</th>
-                        <th className="text-left p-4 font-semibold">Tarih</th>
-                        <th className="text-left p-4 font-semibold">İşlemler</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Sipariş</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Müşteri</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Telefon</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Tür</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Durum</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Tutar</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">Tarih</th>
+                        <th className="text-left p-4 font-semibold text-teal-800">İşlemler</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredOrders.map((order) => (
-                        <tr key={order.id} className="border-t hover:bg-gray-50">
+                      {filteredOrders.map((order, index) => (
+                        <tr key={order.id} className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-teal-50/50 hover:to-blue-50/50 transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
                           <td className="p-4">
                             <div>
                               <p className="font-semibold">
@@ -770,6 +825,7 @@ Teslimat:
                                 variant="outline"
                                 size="sm"
                                 onClick={() => openOrderDetail(order)}
+                                className="border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300 transition-colors"
                               >
                                 <Eye className="h-4 w-4 mr-1" />
                                 Detay
@@ -778,6 +834,7 @@ Teslimat:
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleDownloadPDF(order)}
+                                className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
                               >
                                 <Download className="h-4 w-4 mr-1" />
                                 PDF
@@ -800,28 +857,31 @@ Teslimat:
           </TabsContent>
 
           <TabsContent value="users" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+            <Card className="overflow-hidden border-0 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
+                <CardTitle className="flex items-center space-x-2 text-purple-800">
                   <Users className="h-5 w-5" />
                   <span>Kullanıcı Yönetimi</span>
+                  <Badge variant="secondary" className="ml-auto">
+                    {users.length} Kullanıcı
+                  </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-4 font-semibold">Kullanıcı</th>
-                        <th className="text-left p-4 font-semibold">E-posta</th>
-                        <th className="text-left p-4 font-semibold">Şifre</th>
-                        <th className="text-left p-4 font-semibold">Kayıt Tarihi</th>
-                        <th className="text-left p-4 font-semibold">İşlemler</th>
+                    <thead className="bg-gradient-to-r from-purple-100/50 to-pink-100/50">
+                      <tr>
+                        <th className="text-left p-4 font-semibold text-purple-800">Kullanıcı</th>
+                        <th className="text-left p-4 font-semibold text-purple-800">E-posta</th>
+                        <th className="text-left p-4 font-semibold text-purple-800">Şifre</th>
+                        <th className="text-left p-4 font-semibold text-purple-800">Kayıt Tarihi</th>
+                        <th className="text-left p-4 font-semibold text-purple-800">İşlemler</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map((user) => (
-                        <tr key={user.id} className="border-b hover:bg-gray-50">
+                      {users.map((user, index) => (
+                        <tr key={user.id} className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
                           <td className="p-4">
                             <div>
                               <p className="font-medium">{user.fullName || user.firstName + ' ' + user.lastName || user.email}</p>
@@ -864,7 +924,12 @@ Teslimat:
                           </td>
                           <td className="p-4">
                             <div className="flex space-x-2">
-                              <Button variant="outline" size="sm" onClick={() => handleDeleteUser(user.id)}>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 transition-colors"
+                              >
                                 <Trash className="h-4 w-4 mr-1" /> Sil
                               </Button>
                             </div>
@@ -1221,6 +1286,16 @@ Teslimat:
                       </p>
                     </div>
 
+                    {/* Slogan (her zaman göster, boşsa fallback) */}
+                    <div className="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500">
+                      <h4 className="font-semibold text-indigo-900 mb-2">🏷️ Slogan</h4>
+                      <p className="text-indigo-800 italic">
+                        {selectedOrder.slogan && (selectedOrder.slogan as string).trim() !== ''
+                          ? selectedOrder.slogan
+                          : 'Slogan belirtilmemiş'}
+                      </p>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="bg-teal-50 p-3 rounded-lg border-l-4 border-teal-500">
                         <h5 className="font-semibold text-teal-900 text-sm mb-1">💼 Deneyimleriniz</h5>
@@ -1343,6 +1418,17 @@ Teslimat:
                       onChange={(e) => setWebsiteUrl(e.target.value)}
                       placeholder="https://example.com"
                       className="mt-1"
+                    />
+                  </div>
+
+                  {/* Teslim ZIP Yükle (opsiyonel) */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Teslim ZIP (opsiyonel)</label>
+                    <input
+                      type="file"
+                      accept=".zip"
+                      className="mt-1 block w-full text-sm"
+                      onChange={(e) => setDeliveryZipFile(e.target.files?.[0] || null)}
                     />
                   </div>
 
