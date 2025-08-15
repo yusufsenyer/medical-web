@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { EyeOff } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,7 +30,8 @@ import {
   Loader2,
   Settings,
   ExternalLink,
-  Trash
+  Trash,
+  MessageSquare
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -42,6 +43,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useStore, type Order } from '@/lib/store'
 import { generateOrderPDF, generateAllOrdersPDF } from '@/lib/pdf-utils'
 import { AdminCharts } from '@/components/charts/AdminCharts'
+import { useToast } from '@/hooks/use-toast'
 
 interface Analytics {
   totalRevenue: number;
@@ -55,6 +57,7 @@ interface Analytics {
 function AdminPageContent() {
   const router = useRouter()
   const { user, logout, isAuthenticated } = useAuth()
+  const { toast } = useToast()
   const { orders, analytics, users, updateOrderStatus, loadAllOrders, loadAnalytics, loadAllUsers, updateUserRole, deleteUser } = useStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
@@ -72,6 +75,10 @@ function AdminPageContent() {
   const [refreshInterval, setRefreshInterval] = useState(30) // seconds
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({})
+  // Messaging dialog state
+  const [isMessageOpen, setIsMessageOpen] = useState(false)
+  const [messageOrder, setMessageOrder] = useState<any | null>(null)
+  const [adminMessage, setAdminMessage] = useState('')
 
 
 
@@ -95,6 +102,44 @@ function AdminPageContent() {
     }
   }, [user, isAuthenticated, router, mounted])
 
+  // Open message dialog for a specific order
+  const openMessageDialog = (order: any) => {
+    setMessageOrder(order)
+    setAdminMessage('')
+    setIsMessageOpen(true)
+  }
+
+  // Send admin message to Firestore notifications collection
+  const sendAdminMessage = async () => {
+    try {
+      if (!messageOrder) return
+      const userEmail = messageOrder.customer_email || messageOrder.customerEmail || messageOrder.email
+      if (!userEmail) {
+        toast({ variant: 'destructive', title: 'Kullanıcı bulunamadı', description: 'Siparişe bağlı e-posta adresi yok.' })
+        return
+      }
+      if (!adminMessage.trim()) {
+        toast({ variant: 'destructive', title: 'Mesaj gerekli', description: 'Lütfen mesajınızı yazın.' })
+        return
+      }
+      const { db, collection } = await import('@/lib/firebase')
+      const { addDoc } = await import('firebase/firestore')
+      await addDoc(collection(db as any, 'notifications') as any, {
+        user_email: String(userEmail).toLowerCase(),
+        order_id: messageOrder.id || '',
+        message: adminMessage.trim(),
+        createdAt: new Date().toISOString()
+      } as any)
+      setIsMessageOpen(false)
+      setAdminMessage('')
+      setMessageOrder(null)
+      toast({ title: 'Mesaj gönderildi', description: 'Kullanıcının bildirimler sayfasına iletildi.' })
+    } catch (e) {
+      console.error('Mesaj gönderilemedi:', e)
+      toast({ variant: 'destructive', title: 'Mesaj gönderilemedi', description: 'Lütfen tekrar deneyin.' })
+    }
+  }
+
   // Load orders and analytics on component mount
   useEffect(() => {
     if (!mounted) return
@@ -115,6 +160,27 @@ function AdminPageContent() {
 
     loadData()
   }, [user, loadAllOrders, loadAnalytics, mounted])
+
+  // Toast when new orders arrive
+  const prevOrderIdsRef = useRef<Set<string>>(new Set())
+  useEffect(() => {
+    if (!mounted || user?.role !== 'admin') return
+    const current = new Set((orders || []).map((o: any) => o.id))
+    // If not first run and there are new ids, toast
+    if (prevOrderIdsRef.current.size > 0) {
+      let newCount = 0
+      current.forEach((id) => {
+        if (!prevOrderIdsRef.current.has(id)) newCount++
+      })
+      if (newCount > 0) {
+        toast({
+          title: 'Yeni sipariş',
+          description: `${newCount} yeni sipariş geldi.`,
+        })
+      }
+    }
+    prevOrderIdsRef.current = current
+  }, [orders, mounted, user?.role, toast])
 
   // Auto-refresh functionality
   const refreshData = useCallback(async () => {
@@ -839,6 +905,16 @@ Teslimat:
                                 <Download className="h-4 w-4 mr-1" />
                                 PDF
                               </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openMessageDialog(order)}
+                                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 transition-colors"
+                                title="Kullanıcıya mesaj gönder"
+                              >
+                                <MessageSquare className="h-4 w-4 mr-1" />
+                                Mesaj
+                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -1454,6 +1530,64 @@ Teslimat:
                     />
                   </div>
 
+                  {/* Önceki Teslimatlar */}
+                  {(() => {
+                    const history = (selectedOrder as any)?.delivery_history
+                    const website = (selectedOrder as any)?.website_url || (selectedOrder as any)?.websiteUrl
+                    const zipUrl = (selectedOrder as any)?.delivery_zip_url
+                    const hasAny = (Array.isArray(history) && history.length > 0) || website || zipUrl
+                    if (!hasAny) return null
+                    return (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Önceki Teslimatlar</label>
+                        <div className="mt-2 space-y-2">
+                          {Array.isArray(history) && history.map((item: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between rounded border p-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{item?.label || item?.type || 'Teslimat'}</p>
+                                {item?.url && (
+                                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline break-all">
+                                    {item.url}
+                                  </a>
+                                )}
+                                {item?.created_at && (
+                                  <p className="text-[11px] text-gray-500">{new Date(item.created_at).toLocaleString()}</p>
+                                )}
+                              </div>
+                              {item?.url && (
+                                <Button variant="outline" size="sm" onClick={() => window.open(item.url, '_blank')}>
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                          {website && (
+                            <div className="flex items-center justify-between rounded border p-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">Website</p>
+                                <a href={website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline break-all">{website}</a>
+                              </div>
+                              <Button variant="outline" size="sm" onClick={() => window.open(website as string, '_blank')}>
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                          {zipUrl && (
+                            <div className="flex items-center justify-between rounded border p-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">Teslim ZIP</p>
+                                <a href={zipUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline break-all">{zipUrl}</a>
+                              </div>
+                              <Button variant="outline" size="sm" onClick={() => window.open(zipUrl as string, '_blank')}>
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })()}
+
                   {/* Durum Güncelleme Butonları */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-600">Sipariş Durumu Güncelle</label>
@@ -1492,6 +1626,40 @@ Teslimat:
               </Card>
             </motion.div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Mesaj Gönderme Dialog */}
+      <Dialog open={isMessageOpen} onOpenChange={setIsMessageOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mesaj Gönder</DialogTitle>
+            <DialogDescription>
+              Bu mesaj kullanıcının bildirimler sayfasında görünecek.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            {messageOrder && (
+              <div className="text-sm text-gray-600">
+                <p>
+                  Sipariş: <span className="font-medium">#{messageOrder.id}</span>
+                </p>
+                <p className="truncate">
+                  Kullanıcı: <span className="font-mono">{messageOrder.customer_email || messageOrder.customerEmail || messageOrder.email || '—'}</span>
+                </p>
+              </div>
+            )}
+            <Textarea
+              value={adminMessage}
+              onChange={(e) => setAdminMessage(e.target.value)}
+              placeholder="Kullanıcıya iletmek istediğiniz mesaj..."
+              className="min-h-[120px]"
+            />
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsMessageOpen(false)}>İptal</Button>
+              <Button onClick={sendAdminMessage} disabled={!adminMessage.trim()}>Gönder</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

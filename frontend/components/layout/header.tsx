@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Globe, User, LogOut } from 'lucide-react'
+import { Menu, X, Globe, User, LogOut, Bell } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { collection, getDocs, query, where, db } from '@/lib/firebase'
 
 const navItems = [
   { name: 'Ana Sayfa', href: '/' },
@@ -16,15 +20,50 @@ const navItems = [
   { name: 'İletişim', href: '#contact' }
 ]
 
+interface NotificationDoc {
+  id: string
+  user_email: string
+  order_id?: string
+  message: string
+  createdAt?: string
+}
+
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
+  const [isNotifOpen, setIsNotifOpen] = useState(false)
+  const [notifItems, setNotifItems] = useState<NotificationDoc[]>([])
+  const [notifLoading, setNotifLoading] = useState(false)
+  const [notifError, setNotifError] = useState<string | null>(null)
 
   const handleLogout = () => {
     logout()
     router.push('/auth/login')
   }
+
+  // Load notifications when opening the modal
+  useEffect(() => {
+    const loadNotifs = async () => {
+      if (!isNotifOpen) return
+      if (!user?.email) return
+      try {
+        setNotifLoading(true)
+        setNotifError(null)
+        const q = query(collection(db as any, 'notifications'), where('user_email', '==', user.email.toLowerCase()))
+        const snap = await getDocs(q as any)
+        const data: NotificationDoc[] = snap.docs.map((d: any) => ({ id: d.id, ...(d.data() || {}) }))
+        data.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+        setNotifItems(data)
+      } catch (e: any) {
+        console.error(e)
+        setNotifError(e?.message || 'Bildirimler yüklenemedi')
+      } finally {
+        setNotifLoading(false)
+      }
+    }
+    loadNotifs()
+  }, [isNotifOpen, user?.email])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -55,13 +94,23 @@ export function Header() {
         <div className="hidden md:flex items-center space-x-3">
           {isAuthenticated ? (
             <>
+              {user?.role !== 'admin' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsNotifOpen(true)}
+                  className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 transition-colors"
+                  aria-label="Bildirimler"
+                >
+                  <Bell className="h-4 w-4" />
+                </Button>
+              )}
               <Link href="/auth/profile">
                 <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                   <User className="h-4 w-4" />
                   <span>{user?.firstName || user?.email}</span>
                 </Button>
               </Link>
-
               {user?.role === 'admin' ? (
                 <Link href="/admin">
                   <Button variant="outline" size="sm" className="border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300">
@@ -75,7 +124,6 @@ export function Header() {
                   </Button>
                 </Link>
               )}
-
               <Button
                 variant="ghost"
                 size="sm"
@@ -135,6 +183,16 @@ export function Header() {
             <div className="flex flex-col space-y-2 pt-4 border-t">
               {isAuthenticated ? (
                 <>
+                  {user?.role !== 'admin' && (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-teal-600 hover:text-teal-700 hover:bg-teal-50 transition-colors"
+                      onClick={() => { setIsNotifOpen(true); setIsOpen(false) }}
+                    >
+                      <Bell className="h-4 w-4 mr-2" />
+                      Bildirimler
+                    </Button>
+                  )}
                   <Link href="/auth/profile">
                     <Button variant="ghost" className="w-full justify-start flex items-center space-x-2 text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       <User className="h-4 w-4" />
@@ -182,6 +240,52 @@ export function Header() {
           </div>
         </motion.div>
       )}
+
+      {/* Notifications Modal */}
+      <Dialog open={isNotifOpen} onOpenChange={setIsNotifOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Bildirimler</DialogTitle>
+          </DialogHeader>
+          <Card className="border-teal-100">
+            <CardHeader className="bg-gradient-to-r from-teal-50 to-blue-50/60 py-3">
+              <CardTitle className="text-sm text-teal-700">Gelen Kutusu</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {!isAuthenticated ? (
+                <div className="p-6 text-center text-gray-600">Bildirimleri görmek için giriş yapın.</div>
+              ) : notifLoading ? (
+                <div className="p-6 text-center text-gray-600">Yükleniyor...</div>
+              ) : notifError ? (
+                <div className="p-6 text-center text-red-600">{notifError}</div>
+              ) : notifItems.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground">Henüz bildiriminiz yok.</div>
+              ) : (
+                <ul className="divide-y">
+                  {notifItems.map((n) => (
+                    <li key={n.id} className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 h-2 w-2 rounded-full bg-teal-500 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {n.order_id && (
+                              <Badge variant="outline" className="border-teal-200 text-teal-700">Sipariş #{n.order_id}</Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {n.createdAt ? new Date(n.createdAt).toLocaleString('tr-TR') : ''}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-gray-800 whitespace-pre-line break-words">{n.message}</p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
     </header>
   )
 }
